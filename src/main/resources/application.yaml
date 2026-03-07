@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: tech-blog-api
+server:
+  port: 8081
