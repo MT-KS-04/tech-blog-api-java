@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TechBlogApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TechBlogApiApplication.class, args);
+        SpringApplication.run(TechBlogApiApplication.class, args);
 	}
 }
