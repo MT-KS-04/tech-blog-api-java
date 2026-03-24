@@ -1,23 +1,16 @@
 package com.mtks04.tech_blog_api.controller;
 
-/**
- * Custom Modules
- */
 import com.mtks04.tech_blog_api.config.AppProperties;
 
-/**
- * Spring Modules
- */
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 import  org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.management.ManagementFactory;
 import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-@RestController()
+@Controller
 @RequestMapping("/")
 public class AppController {
     private final AppProperties appProperties;
@@ -27,20 +20,17 @@ public class AppController {
     }
 
     @GetMapping("/")
-    Map<String, Object> home() {
-        Map<String, Object> res = new LinkedHashMap<>();
+    public String home(Model model) {
+        model.addAttribute("message", "Hệ thống đang hoạt động tốt!");
+        model.addAttribute("status", "ok");
+        model.addAttribute("serviceName", "tech-blog-api");
+        model.addAttribute("version", "1.0.0");
+        model.addAttribute("environment", appProperties.getEnvironment());
+        model.addAttribute("uptime", ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0);
+        model.addAttribute("server", "Spring Boot MVC");
+        model.addAttribute("docs", "https://docs.tech-blog-api.mk-ts-04.com");
+        model.addAttribute("timestamp", Instant.now().toString());
 
-        res.put("message", "API is live");
-        res.put("status", "ok");
-        res.put("serviceName", "tect-blog-api");
-        res.put("version", "1.0.0");
-        res.put("environment", appProperties.getEnvironment());
-        // Tính uptime (giây)
-        res.put("uptime", ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0);
-        res.put("server", "Spring Boot + Java");
-        res.put("docs", "https://docs.tech-blog-api.mk-ts-04.com");
-        res.put("timestamp", Instant.now().toString());
-
-        return  res;
+        return "index";
     }
 }

@@ -10,8 +10,7 @@ spring:
       ddl-auto: update
 server:
   port: 8888
-  servlet:
-    context-path: /api/v1
+  
 app:
   environment: development
   log-level: info
