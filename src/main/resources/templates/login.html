@@ -21,6 +21,9 @@
         <div th:if="${param.error}" class="error">
             Sai tên đăng nhập hoặc mật khẩu!
         </div>
+        <div th:if="${param.success}" style="color: green; text-align: center; margin-bottom: 1rem;">
+            Đăng ký thành công! Vui lòng đăng nhập.
+        </div>
         <form th:action="@{/login}" method="post">
             <div class="form-group">
                 <label for="username">Tên đăng nhập:</label>
@@ -32,6 +35,9 @@
             </div>
             <button type="submit">Đăng nhập</button>
         </form>
+        <div style="margin-top: 1rem; text-align: center;">
+            <p>Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a></p>
+        </div>
     </div>
 </body>
 </html>

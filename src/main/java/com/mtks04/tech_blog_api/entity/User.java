@@ -4,11 +4,19 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     public enum Role {
@@ -20,27 +28,32 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     @Size(min = 3, max = 50, message = "username phai lon hon 3 ky tu va khong qua 50 ky tu")
     @NotBlank(message = "username khong duoc rong")
     private String username;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     @Email(message = "Sai dinh dang email")
     @NotBlank(message = "Email khong duoc rong")
     private String email;
 
-    @Size(min = 6, max = 50, message = "Password phai lon hon 6 ky tu va khong qua 50 ky tu")
+    @Column(nullable = false)
+    @Size(min = 6, max = 100, message = "Password phai lon hon 6 ky tu")
     @NotBlank(message = "Password khong duoc rong")
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private Role role = Role.USER;
 
+    @Column(name = "isActive")
     private boolean isActive = true;
 
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
