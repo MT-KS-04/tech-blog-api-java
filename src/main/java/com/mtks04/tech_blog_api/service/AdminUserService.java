@@ -22,7 +22,7 @@ public class AdminUserService {
     public Page<User> getAllUsers(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         if (keyword != null && !keyword.isEmpty()) {
-            return userRepository.findByUsernameContainingOrEmailContaining(keyword, keyword, pageable);
+            return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword, pageable);
         }
         return userRepository.findAll(pageable);
     }

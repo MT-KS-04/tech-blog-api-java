@@ -3,8 +3,6 @@ package com.mtks04.tech_blog_api.repository;
 import com.mtks04.tech_blog_api.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +18,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     // Tìm kiếm người dùng theo username hoặc email hỗ trợ phân trang
-    Page<User> findByUsernameContainingOrEmailContaining(String username, String email, Pageable pageable);
+    Page<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email, Pageable pageable);
 }
