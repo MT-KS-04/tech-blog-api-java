@@ -17,6 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    // Tìm kiếm người dùng theo username hoặc email hỗ trợ phân trang
+    // Tìm kiếm người dùng theo username hoặc email (có phân trang và không phân biệt hoa thường)
     Page<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email, Pageable pageable);
 }
