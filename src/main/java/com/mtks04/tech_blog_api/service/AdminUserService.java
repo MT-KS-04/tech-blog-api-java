@@ -17,18 +17,18 @@ public class AdminUserService {
     private final UserRepository userRepository;
 
     /**
-     * Lấy danh sách người dùng kèm phân trang và tìm kiếm
+     * Lấy danh sách người dùng có phân trang và tìm kiếm (theo username/email)
      */
     public Page<User> getAllUsers(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         if (keyword != null && !keyword.isEmpty()) {
-            return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword, pageable);
+            return userRepository.findByUsernameContainingOrEmailContaining(keyword, keyword, pageable);
         }
         return userRepository.findAll(pageable);
     }
 
     /**
-     * Khóa hoặc mở khóa tài khoản người dùng
+     * Đảo ngược trạng thái hoạt động của người dùng (Bật/Tắt)
      */
     @Transactional
     public void toggleUserStatus(Long userId) {
@@ -39,23 +39,29 @@ public class AdminUserService {
     }
 
     /**
-     * Cập nhật quyền hạn (Role) cho người dùng
+     * Cập nhật quyền hạn cho người dùng
      */
     @Transactional
-    public void updateUserRole(Long userId, User.Role newRole) {
+    public void updateRole(Long userId, String roleName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Khong tim thay nguoi dung id: " + userId));
-        user.setRole(newRole);
-        userRepository.save(user);
+        
+        try {
+            User.Role newRole = User.Role.valueOf(roleName.toUpperCase());
+            user.setRole(newRole);
+            userRepository.save(user);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Quyen han khong hop le: " + roleName);
+        }
     }
 
     /**
-     * Xóa vĩnh viễn người dùng (Hard Delete)
+     * Xóa vĩnh viễn người dùng khỏi cơ sở dữ liệu
      */
     @Transactional
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new RuntimeException("Khong tim thay nguoi dung de xoa id: " + userId);
+            throw new RuntimeException("Khong tim thay nguoi dung id: " + userId);
         }
         userRepository.deleteById(userId);
     }
