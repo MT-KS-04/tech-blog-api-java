@@ -4,8 +4,10 @@ import com.mtks04.tech_blog_api.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -23,4 +25,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // Tìm bài viết theo danh mục
     Page<Post> findByCategoryId(Long categoryId, Pageable pageable);
+
+    // Dashboard: 5 bài viết mới nhất
+    List<Post> findTop5ByOrderByCreatedAtDesc();
+
+    // Dashboard: 5 bài viết có lượt xem cao nhất
+    List<Post> findTop5ByOrderByViewCountDesc();
+
+    // Dashboard: Tổng lượt xem toàn hệ thống
+    @Query("SELECT COALESCE(SUM(p.viewCount), 0) FROM Post p")
+    Long sumViewCount();
 }
