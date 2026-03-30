@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - User Management (Testing UI)</title>
+    <!-- Thêm CSS cơ bản để dễ nhìn cho việc test -->
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .btn { padding: 5px 10px; cursor: pointer; text-decoration: none; border: none; border-radius: 4px; }
+        .btn-toggle { background-color: #ff9800; color: white; }
+        .btn-delete { background-color: #f44336; color: white; }
+        .btn-update { background-color: #2196f3; color: white; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .search-area { margin-bottom: 20px; }
+        .status-active { color: green; font-weight: bold; }
+        .status-inactive { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>Admin: Quản lý người dùng (Testing View)</h1>
+
+    <!-- Thông báo Success/Error -->
+    <p th:if="${success}" class="success" th:text="${success}"></p>
+    <p th:if="${error}" class="error" th:text="${error}"></p>
+
+    <!-- Khối tìm kiếm -->
+    <div class="search-area">
+        <form th:action="@{/admin/users}" method="get">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Tim theo Username hoac Email...">
+            <button type="submit" class="btn btn-update">Tim kiem</button>
+            <a th:href="@{/admin/users}" class="btn">Reset</a>
+        </form>
+    </div>
+
+    <!-- Bảng danh sách người dùng -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Quyền (Role)</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td>
+                    <form th:action="@{/admin/users/update-role}" method="post" style="display:inline;">
+                        <input type="hidden" name="userId" th:value="${user.id}">
+                        <select name="role">
+                            <option th:each="roleOpt : ${roles}" 
+                                    th:value="${roleOpt}" 
+                                    th:text="${roleOpt}" 
+                                    th:selected="${roleOpt == user.role}"></option>
+                        </select>
+                        <button type="submit" class="btn btn-update">Cap nhat</button>
+                    </form>
+                </td>
+                <td th:class="${user.active ? 'status-active' : 'status-inactive'}" 
+                    th:text="${user.active ? 'Hoat dong' : 'Bi khoa'}"></td>
+                <td>
+                    <!-- Nút Khóa/Mở -->
+                    <form th:action="@{/admin/users/toggle-status/{id}(id=${user.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-toggle" 
+                                th:text="${user.active ? 'Khoa' : 'Mo khoa'}"></button>
+                    </form>
+                    
+                    <!-- Nút Xóa vĩnh viễn -->
+                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" style="display:inline;" 
+                          onsubmit="return confirm('Ban co chac muon xoa VINH VIEN nguoi dung nay?');">
+                        <button type="submit" class="btn btn-delete">Xoa</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Phân trang đơn giản -->
+    <div style="margin-top: 20px;">
+        <span>Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span></span>
+        <a th:if="${currentPage > 0}" th:href="@{/admin/users(page=${currentPage - 1}, keyword=${keyword})}">Previous</a>
+        <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/users(page=${currentPage + 1}, keyword=${keyword})}">Next</a>
+    </div>
+
+</body>
+</html>
