@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="adminHead(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' | TechPulse Admin' : 'TechPulse Admin'}">TechPulse Admin</title>
+
+    <!-- Google Fonts: Playfair Display + Source Sans 3 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:   { DEFAULT: 'hsl(160,45%,40%)', foreground: '#ffffff', light: 'hsl(160,45%,95%)' },
+                        muted:     { DEFAULT: 'hsl(40,10%,93%)',  foreground: 'hsl(220,10%,46%)' },
+                        card:      { DEFAULT: '#ffffff',           foreground: 'hsl(220,20%,12%)' },
+                        border:    { DEFAULT: 'hsl(40,10%,88%)' },
+                        sidebar:   { DEFAULT: 'hsl(0,0%,98%)',    accent: 'hsl(40,15%,94%)', border: 'hsl(40,10%,88%)' },
+                        destructive:{ DEFAULT: 'hsl(0,72%,51%)',  foreground: '#ffffff' },
+                    },
+                    fontFamily: {
+                        display: ['"Playfair Display"', 'Georgia', 'serif'],
+                        body:    ['"Source Sans 3"', 'system-ui', 'sans-serif'],
+                    },
+                    backgroundColor: {
+                        background: 'hsl(40,20%,98%)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        body { font-family: 'Source Sans 3', system-ui, sans-serif; background-color: hsl(40,20%,98%); color: hsl(220,20%,12%); }
+        h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', Georgia, serif; }
+        
+        /* Sidebar */
+        #sidebar { width: 240px; min-height: 100vh; background: hsl(0,0%,98%); border-right: 1px solid hsl(40,10%,88%); transition: width 0.2s ease; flex-shrink: 0; }
+        #sidebar.collapsed { width: 64px; }
+        #sidebar.collapsed .sidebar-label { display: none; }
+        #sidebar.collapsed .sidebar-logo-text { display: none; }
+        #sidebar.collapsed .sidebar-group-label { display: none; }
+
+        /* Nav Items */
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: hsl(240,5.3%,26.1%); font-size: 14px; font-weight: 500; text-decoration: none; transition: background 0.15s, color 0.15s; white-space: nowrap; overflow: hidden; }
+        .nav-item:hover { background: hsl(40,15%,94%); }
+        .nav-item.active { background: hsl(40,15%,94%); color: hsl(160,45%,40%); font-weight: 600; }
+        .nav-item.active svg { stroke: hsl(160,45%,40%); }
+
+        /* Badge styles */
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+        .badge-admin    { background: hsl(0,72%,95%);   color: hsl(0,72%,45%); }
+        .badge-editor   { background: hsl(160,45%,90%); color: hsl(160,45%,30%); }
+        .badge-user     { background: hsl(40,15%,90%);  color: hsl(220,10%,40%); }
+        .badge-active   { background: hsl(160,45%,90%); color: hsl(160,45%,30%); }
+        .badge-inactive { background: hsl(0,72%,95%);   color: hsl(0,72%,45%); }
+
+        /* Dropdown */
+        .dropdown-menu { display: none; position: absolute; right: 0; top: calc(100% + 4px); min-width: 160px; background: white; border: 1px solid hsl(40,10%,88%); border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); z-index: 50; padding: 4px; }
+        .dropdown-menu.open { display: block; }
+        .dropdown-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; font-size: 13px; color: hsl(220,20%,12%); cursor: pointer; transition: background 0.1s; text-decoration: none; }
+        .dropdown-item:hover { background: hsl(40,15%,94%); }
+        .dropdown-item.danger { color: hsl(0,72%,51%); }
+        .dropdown-item.danger:hover { background: hsl(0,72%,95%); }
+
+        /* Card */
+        .card { background: white; border: 1px solid hsl(40,10%,88%); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+
+        /* Alert messages */
+        .alert-success { background: hsl(160,45%,92%); color: hsl(160,45%,25%); border: 1px solid hsl(160,45%,75%); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; }
+        .alert-error   { background: hsl(0,72%,95%); color: hsl(0,72%,40%); border: 1px solid hsl(0,72%,80%); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; }
+
+        /* Button toggle sidebar */
+        #sidebar-toggle { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px; color: hsl(220,10%,46%); transition: background 0.15s; }
+        #sidebar-toggle:hover { background: hsl(40,15%,94%); }
+        
+        /* Sticky header */
+        #admin-header { position: sticky; top: 0; z-index: 40; }
+    </style>
+</head>
+<body class="flex" th:fragment="adminLayout(pageTitle, content)">
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-4 py-5 border-b border-stone-200">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white font-bold text-sm" style="background: hsl(160,45%,40%);">
+                TP
+            </div>
+            <span class="sidebar-logo-text font-display text-lg font-bold" style="color: hsl(220,20%,12%);">TechPulse</span>
+        </div>
+
+        <!-- Nav -->
+        <nav class="p-3 space-y-1">
+            <p class="sidebar-group-label px-3 py-2 text-xs font-semibold uppercase tracking-wider" style="color: hsl(220,10%,46%);">Quản lý</p>
+
+            <a th:href="@{/admin}" 
+               th:classappend="${activePage == 'dashboard' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Dashboard</span>
+            </a>
+
+            <a th:href="@{/admin/posts}" 
+               th:classappend="${activePage == 'posts' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Quản lý bài viết</span>
+            </a>
+
+            <a th:href="@{/admin/users}" 
+               th:classappend="${activePage == 'users' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Quản lý người dùng</span>
+            </a>
+
+            <a th:href="@{/admin/categories}" 
+               th:classappend="${activePage == 'categories' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="tag" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Quản lý danh mục</span>
+            </a>
+
+            <a th:href="@{/admin/comments}" 
+               th:classappend="${activePage == 'comments' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="message-square" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Quản lý comment</span>
+            </a>
+
+            <div class="border-t border-stone-200 my-3"></div>
+            <p class="sidebar-group-label px-3 py-2 text-xs font-semibold uppercase tracking-wider" style="color: hsl(220,10%,46%);">Hệ thống</p>
+
+            <a th:href="@{/}" class="nav-item">
+                <i data-lucide="chevron-left" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Về trang chủ</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Area -->
+    <div class="flex flex-col flex-1 min-w-0">
+
+        <!-- Header -->
+        <header id="admin-header" class="flex h-14 items-center gap-3 border-b px-4 justify-between" 
+                style="background: white; border-color: hsl(40,10%,88%);">
+            
+            <!-- Left side: Toggle + Title -->
+            <div class="flex items-center gap-3">
+                <button id="sidebar-toggle" onclick="toggleSidebar()" title="Ẩn/Hiện menu">
+                    <i data-lucide="panel-left" class="w-5 h-5"></i>
+                </button>
+                <span class="text-sm font-medium" style="color: hsl(220,10%,46%);">Admin Panel</span>
+            </div>
+
+            <!-- Right side: User Info + Logout -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2" th:if="${currentUser != null}">
+                    <span class="text-sm font-medium" th:text="${currentUser}">Admin</span>
+                    <div class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold border border-stone-200"
+                         th:text="${#strings.substring(currentUser, 0, 1).toUpperCase()}">
+                        A
+                    </div>
+                </div>
+
+                <form th:action="@{/logout}" method="post" id="logoutForm">
+                    <button type="submit" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Đăng xuất</span>
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-auto p-6">
+            <th:block th:replace="${content}"/>
+        </main>
+    </div>
+
+    <script>
+        // Khởi tạo Lucide Icons khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        // Đóng Dropdown khi click ra ngoài
+        document.addEventListener('click', function(e) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.previousElementSibling && !menu.previousElementSibling.contains(e.target)) {
+                    menu.classList.remove('open');
+                }
+            });
+        });
+
+        function toggleDropdown(btn) {
+            const menu = btn.nextElementSibling;
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.remove('open');
+            });
+            menu.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
