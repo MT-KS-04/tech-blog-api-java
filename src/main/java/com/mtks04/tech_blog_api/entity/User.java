@@ -21,6 +21,7 @@ public class User {
 
     public enum Role {
         ADMIN,
+        EDITOR,
         USER
     }
 
@@ -45,9 +46,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
+    @Builder.Default
     private Role role = Role.USER;
 
-    @Column(name = "isActive")
+    @Column(name = "is_active")
+    @Builder.Default
     private boolean isActive = true;
 
     @Column(name = "created_at", updatable = false)
