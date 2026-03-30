@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Quản lý người dùng (Test)</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; border: 1px solid #ccc; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .active { color: green; font-weight: bold; }
+        .inactive { color: red; font-weight: bold; }
+        .message { padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<h1>Danh sách người dùng (Admin)</h1>
+
+<!-- Thông báo -->
+<div th:if="${success}" class="message success" th:text="${success}"></div>
+<div th:if="${error}" class="message error" th:text="${error}"></div>
+
+<!-- Tìm kiếm -->
+<form th:action="@{/admin/users}" method="get" style="margin-bottom: 20px;">
+    <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm theo username/email...">
+    <button type="submit">Tìm kiếm</button>
+    <a th:href="@{/admin/users}" th:if="${keyword}">Xóa lọc</a>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Quyền (Role)</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${user.email}"></td>
+        <td>
+            <form th:action="@{/admin/users/update-role}" method="post" style="display:inline;">
+                <input type="hidden" name="userId" th:value="${user.id}">
+                <select name="role">
+                    <option value="USER" th:selected="${user.role == T(com.mtks04.tech_blog_api.entity.User.Role).USER}">USER</option>
+                    <option value="EDITOR" th:selected="${user.role == T(com.mtks04.tech_blog_api.entity.User.Role).EDITOR}">EDITOR</option>
+                    <option value="ADMIN" th:selected="${user.role == T(com.mtks04.tech_blog_api.entity.User.Role).ADMIN}">ADMIN</option>
+                </select>
+                <button type="submit">Cập nhật</button>
+            </form>
+        </td>
+        <td>
+            <span th:class="${user.isActive ? 'active' : 'inactive'}" th:text="${user.isActive ? 'Đang hoạt động' : 'Đã khóa'}"></span>
+        </td>
+        <td>
+            <!-- Nút Khóa/Mở -->
+            <form th:action="@{/admin/users/toggle-status/{id}(id=${user.id})}" method="post" style="display:inline;">
+                <button type="submit" th:text="${user.isActive ? 'Khóa' : 'Mở khóa'}"></button>
+            </form>
+
+            <!-- Nút Xóa vĩnh viễn -->
+            <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn XÓA VĨNH VIỄN người này không?')">
+                <button type="submit" style="color:red;">Xóa</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Phân trang đơn giản -->
+<div th:if="${totalPages > 1}" style="margin-top: 20px;">
+    <span>Trang: </span>
+    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:href="@{/admin/users(page=${i}, keyword=${keyword})}" 
+           th:text="${i + 1}"
+           th:style="${i == currentPage ? 'font-weight:bold;' : ''}"></a>
+    </span>
+</div>
+
+<p style="margin-top: 50px;">
+    <a th:href="@{/}">Quay lại trang chủ</a>
+</p>
+
+</body>
+</html>
