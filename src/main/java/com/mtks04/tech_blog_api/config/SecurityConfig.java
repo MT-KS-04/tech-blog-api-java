@@ -22,15 +22,20 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**").permitAll()
-                    .anyRequest().authenticated()
-                )
-                .formLogin(form -> form 
-                    .loginPage("/login")
-                    .defaultSuccessUrl("/home", true)
-                    .permitAll()
-                )
-                .logout(logout -> logout.permitAll());
+                        // Cho phép các trang công khai và asset
+                        .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**")
+                        .permitAll()
+                        // Chỉ ADMIN mới được vào trang quản trị
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Mọi yêu cầu khác đều phải đăng nhập
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll());
         return httpSecurity.build();
 
     }
