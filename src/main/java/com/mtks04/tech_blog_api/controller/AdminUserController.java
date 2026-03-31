@@ -32,8 +32,10 @@ public class AdminUserController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", userPage.getTotalPages());
         model.addAttribute("totalItems", userPage.getTotalElements());
+        model.addAttribute("pageSize", 10);
         model.addAttribute("keyword", keyword);
         model.addAttribute("roles", User.Role.values());
+        model.addAttribute("activePage", "users");
         
         return "admin/users/list";
     }

@@ -1,130 +1,151 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin_layout :: adminHead('Quản lý người dùng')}">
     <meta charset="UTF-8">
-    <title>Admin - Quản lý người dùng</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; line-height: 1.6; color: #333; }
-        h1 { color: #2c3e50; }
-        table { border-collapse: collapse; width: 100%; border: 1px solid #dee2e6; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
-        th { background-color: #f8f9fa; color: #495057; font-weight: 600; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        tr:hover { background-color: #f1f1f1; }
-        
-        .status-active { color: #28a745; font-weight: bold; }
-        .status-inactive { color: #dc3545; font-weight: bold; }
-        
-        .message { padding: 12px; margin-bottom: 20px; border-radius: 4px; font-weight: 500; }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        
-        .btn { padding: 6px 12px; cursor: pointer; text-decoration: none; border: 1px solid transparent; border-radius: 4px; font-size: 14px; transition: all 0.2s; }
-        .btn-toggle { background-color: #ffc107; color: #212529; }
-        .btn-toggle:hover { background-color: #e0a800; }
-        .btn-delete { background-color: #dc3545; color: white; margin-left: 5px; }
-        .btn-delete:hover { background-color: #c82333; }
-        .btn-update { background-color: #007bff; color: white; margin-left: 5px; }
-        .btn-update:hover { background-color: #0069d9; }
-        .btn-search { background-color: #6c757d; color: white; }
-        
-        .search-area { background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #dee2e6; margin-bottom: 20px; }
-        input[type="text"] { padding: 8px; width: 250px; border: 1px solid #ced4da; border-radius: 4px; }
-        select { padding: 8px; border: 1px solid #ced4da; border-radius: 4px; }
-        
-        .pagination { margin-top: 25px; display: flex; align-items: center; gap: 10px; }
-        .pagination a { text-decoration: none; padding: 6px 12px; border: 1px solid #007bff; color: #007bff; border-radius: 4px; }
-        .pagination a:hover { background-color: #007bff; color: white; }
-        .pagination .current { padding: 6px 12px; background-color: #007bff; color: white; border-radius: 4px; font-weight: bold; }
-    </style>
+    <title>Quản lý người dùng | TechPulse Admin</title>
 </head>
-<body>
+<body th:replace="~{fragments/admin_layout :: adminLayout('Quản lý người dùng', ~{::#main-content})}">
 
-    <h1>Hệ thống Quản lý người dùng (Admin)</h1>
+        <div id="main-content">
+            <style>
+                /* Style đặc thù cho Quản lý người dùng */
+                .search-wrapper { position: relative; }
+                .search-wrapper svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: hsl(220,10%,46%); pointer-events: none; }
+                .search-input { width: 100%; padding: 10px 12px 10px 38px; border: 1px solid hsl(40,10%,88%); border-radius: 8px; font-size: 14px; background: white; outline: none; transition: border-color 0.15s; }
+                .search-input:focus { border-color: hsl(160,45%,40%); box-shadow: 0 0 0 3px hsla(160,45%,40%, 0.1); }
 
-    <!-- Thông báo kết quả thực hiện -->
-    <div th:if="${success}" class="message success" th:text="${success}"></div>
-    <div th:if="${error}" class="message error" th:text="${error}"></div>
+                table { width: 100%; border-collapse: collapse; }
+                th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: hsl(220,10%,46%); border-bottom: 1px solid hsl(40,10%,88%); }
+                td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid hsl(40,10%,88%); vertical-align: middle; }
+                tbody tr:hover { background: hsl(40,20%,99%); }
 
-    <!-- Khu vực tìm kiếm -->
-    <div class="search-area">
-        <form th:action="@{/admin/users}" method="get">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm theo Username hoặc Email...">
-            <button type="submit" class="btn btn-search">Tìm kiếm</button>
-            <a th:href="@{/admin/users}" th:if="${keyword}" class="btn" style="background:#eee; color:#333; border-color:#ccc;">Xóa lọc</a>
-        </form>
-    </div>
+                .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid hsl(40,10%,88%); }
 
-    <!-- Bảng dữ liệu -->
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Quyền hạn (Role)</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="user : ${users}">
-                <td th:text="${user.id}"></td>
-                <td th:text="${user.username}"></td>
-                <td th:text="${user.email}"></td>
-                <td>
-                    <form th:action="@{/admin/users/update-role}" method="post" style="display:inline;">
-                        <input type="hidden" name="userId" th:value="${user.id}">
-                        <select name="role">
-                            <option th:each="r : ${roles}" 
-                                    th:value="${r}" 
-                                    th:text="${r}" 
-                                    th:selected="${r == user.role}"></option>
-                        </select>
-                        <button type="submit" class="btn btn-update">Cập nhật</button>
+                .role-select { padding: 5px 8px; border: 1px solid hsl(40,10%,88%); border-radius: 6px; font-size: 13px; background: white; outline: none; }
+                .role-select:focus { border-color: hsl(160,45%,40%); }
+
+                .btn-action { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+                .btn-update  { background: hsl(160,45%,95%); color: hsl(160,45%,40%); }
+                .btn-update:hover { background: hsl(160,45%,88%); }
+                .btn-lock    { background: hsl(40,90%,94%); color: hsl(35,85%,40%); }
+                .btn-unlock  { background: hsl(220,70%,96%); color: hsl(220,70%,42%); }
+                .btn-delete  { background: hsl(0,72%,95%); color: hsl(0,72%,51%); }
+
+                .pagination { display: flex; align-items: center; gap: 6px; margin-top: 20px; }
+                .page-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid hsl(40,10%,88%); font-size: 13px; font-weight: 500; text-decoration: none; color: hsl(220,20%,12%); }
+                .page-btn.current { background: hsl(160,45%,40%); color: white; border-color: hsl(160,45%,40%); }
+                .page-btn.disabled { opacity: 0.4; pointer-events: none; }
+            </style>
+
+            <!-- Page Header -->
+            <div style="margin-bottom: 24px;">
+                <h1 style="font-size: 24px; font-weight: 700; margin: 0;">Quản lý người dùng</h1>
+                <p style="font-size: 14px; color: hsl(220,10%,46%); margin: 4px 0 0 0;" th:text="${totalItems + ' người dùng trên nền tảng'}"></p>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+            <!-- Card -->
+            <div class="card">
+                <!-- Search -->
+                <div style="padding: 20px; border-bottom: 1px solid hsl(40,10%,88%);">
+                    <form th:action="@{/admin/users}" method="get" style="display: flex; gap: 10px; align-items: center;">
+                        <div class="search-wrapper" style="flex: 1;">
+                            <i data-lucide="search"></i>
+                            <input type="text" name="keyword" class="search-input" th:value="${keyword}" placeholder="Tìm kiếm theo tên hoặc email...">
+                        </div>
+                        <button type="submit" class="btn-action btn-update" style="padding: 10px 20px;">Tìm kiếm</button>
                     </form>
-                </td>
-                <td>
-                    <span th:class="${user.isActive ? 'status-active' : 'status-inactive'}" 
-                          th:text="${user.isActive ? 'Hoạt động' : 'Bị khóa'}"></span>
-                </td>
-                <td>
-                    <!-- Nút Khóa/Mở khóa -->
-                    <form th:action="@{/admin/users/toggle-status/{id}(id=${user.id})}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-toggle" 
-                                th:text="${user.isActive ? 'Khóa' : 'Mở khóa'}"></button>
-                    </form>
-                    
-                    <!-- Nút Xóa vĩnh viễn -->
-                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" style="display:inline;" 
-                          onsubmit="return confirm('CẢNH BÁO: Bạn có chắc muốn xóa VĨNH VIỄN người dùng này?');">
-                        <button type="submit" class="btn btn-delete">Xóa</button>
-                    </form>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                </div>
 
-    <!-- Phân trang -->
-    <div class="pagination" th:if="${totalPages > 0}">
-        <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
-        
-        <a th:if="${currentPage > 0}" 
-           th:href="@{/admin/users(page=${currentPage - 1}, keyword=${keyword})}">Trước</a>
-        
-        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-            <a th:if="${i != currentPage}" 
-               th:href="@{/admin/users(page=${i}, keyword=${keyword})}" th:text="${i + 1}"></a>
-            <span th:if="${i == currentPage}" class="current" th:text="${i + 1}"></span>
-        </span>
+                <!-- Table -->
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Người dùng</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th style="text-align: right;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user, status : ${users}">
+                                <!-- Số thứ tự (STT) -->
+                                <td style="color: hsl(220,10%,46%); font-weight: 500;" 
+                                    th:text="${currentPage * pageSize + status.count}">1</td>
+                                
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <img th:src="@{'https://ui-avatars.com/api/?name=' + ${user.username} + '&background=4ade80&color=fff'}" class="avatar">
+                                        <div>
+                                            <p style="font-weight: 600; margin:0;" th:text="${user.username}"></p>
+                                            <p style="color: hsl(220,10%,46%); font-size:12px; margin:0;" th:text="${user.email}"></p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:if="${user.role.name() == 'ADMIN'}"   class="badge-admin badge">Admin</span>
+                                    <span th:if="${user.role.name() == 'EDITOR'}"  class="badge-editor badge">Editor</span>
+                                    <span th:if="${user.role.name() == 'USER'}"    class="badge-user badge">User</span>
+                                </td>
+                                <td>
+                                    <span th:if="${user.isActive}"  class="badge-active badge">Hoạt động</span>
+                                    <span th:if="${!user.isActive}" class="badge-inactive badge">Bị khóa</span>
+                                </td>
+                                <td style="color: hsl(220,10%,46%); font-size:13px;" th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                                        <!-- Update Role -->
+                                        <form th:action="@{/admin/users/update-role}" method="post" style="display: flex; gap: 6px;">
+                                            <input type="hidden" name="userId" th:value="${user.id}">
+                                            <select name="role" class="role-select">
+                                                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${r == user.role}"></option>
+                                            </select>
+                                            <button type="submit" class="btn-action btn-update">
+                                                <i data-lucide="check" style="width:14px; height:14px;"></i>
+                                                <span>Cập nhật</span>
+                                            </button>
+                                        </form>
 
-        <a th:if="${currentPage < totalPages - 1}" 
-           th:href="@{/admin/users(page=${currentPage + 1}, keyword=${keyword})}">Sau</a>
-    </div>
+                                        <!-- Lock/Unlock -->
+                                        <form th:action="@{/admin/users/toggle-status/{id}(id=${user.id})}" method="post">
+                                            <button type="submit" th:class="${user.isActive ? 'btn-lock btn-action' : 'btn-unlock btn-action'}" th:title="${user.isActive ? 'Khóa' : 'Mở'}">
+                                                <i th:attr="data-lucide=${user.isActive ? 'ban' : 'unlock'}" style="width:14px; height:14px;"></i>
+                                                <span th:text="${user.isActive ? 'Khóa' : 'Mở khóa'}"></span>
+                                            </button>
+                                        </form>
 
-    <div style="margin-top: 30px;">
-        <a th:href="@{/}" class="btn" style="background:#007bff; color:white; padding:10px 20px;">Quay lại Trang chủ</a>
-    </div>
+                                        <!-- Delete -->
+                                        <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" onsubmit="return confirm('Xóa vĩnh viễn người dùng này?')">
+                                            <button type="submit" class="btn-delete btn-action">
+                                                <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
+                                                <span>Xóa</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div style="padding: 20px; border-top: 1px solid hsl(40,10%,88%);" th:if="${totalPages > 1}">
+                    <div class="pagination">
+                        <a class="page-btn" th:classappend="${currentPage == 0 ? ' disabled' : ''}" th:href="@{/admin/users(page=${currentPage - 1}, keyword=${keyword})}">Trước</a>
+                        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                            <a th:href="@{/admin/users(page=${i}, keyword=${keyword})}" class="page-btn" th:classappend="${i == currentPage ? ' current' : ''}" th:text="${i + 1}"></a>
+                        </th:block>
+                        <a class="page-btn" th:classappend="${currentPage >= totalPages - 1 ? ' disabled' : ''}" th:href="@{/admin/users(page=${currentPage + 1}, keyword=${keyword})}">Sau</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 </body>
 </html>
