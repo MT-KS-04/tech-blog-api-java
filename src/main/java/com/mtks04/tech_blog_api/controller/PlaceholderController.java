@@ -11,45 +11,40 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PlaceholderController {
 
     // --- Admin Placeholders ---
-    
-    @GetMapping({"/admin/posts", "/admin/posts/**"})
+
+    @GetMapping({ "/admin/posts", "/admin/posts/**" })
     public String adminPosts() {
         return "error/404";
     }
 
-    @GetMapping({"/admin/categories", "/admin/categories/**"})
-    public String adminCategories() {
-        return "error/404";
-    }
-
-    @GetMapping({"/admin/comments", "/admin/comments/**"})
+    @GetMapping({ "/admin/comments", "/admin/comments/**" })
     public String adminComments() {
         return "error/404";
     }
 
     // --- Public Placeholders ---
 
-    @GetMapping({"/blog", "/blog/**"})
+    @GetMapping({ "/blog", "/blog/**" })
     public String publicBlog() {
         return "error/404";
     }
 
-    @GetMapping({"/post/**"})
+    @GetMapping({ "/post/**" })
     public String publicPostDetail() {
         return "error/404";
     }
 
-    @GetMapping({"/author/**"})
+    @GetMapping({ "/author/**" })
     public String publicAuthorProfile() {
         return "error/404";
     }
 
-    @GetMapping({"/user/profile", "/user/profile/**"})
+    @GetMapping({ "/user/profile", "/user/profile/**" })
     public String userProfile() {
         return "error/404";
     }
-    
-    @GetMapping({"/search", "/search/**"})
+
+    @GetMapping({ "/search", "/search/**" })
     public String searchPlaceholder() {
         return "error/404";
     }
