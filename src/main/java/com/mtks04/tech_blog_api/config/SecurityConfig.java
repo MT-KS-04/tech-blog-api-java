@@ -31,8 +31,8 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form 
                     .loginPage("/login")
-                    // Admin đăng nhập xong sẽ vào thẳng bảng quản lý người dùng
-                    .defaultSuccessUrl("/admin/users", true)
+                    // Đăng nhập thành công sẽ chuyển sang trang chủ
+                    .defaultSuccessUrl("/", true)
                     .permitAll()
                 )
                 .logout(logout -> logout

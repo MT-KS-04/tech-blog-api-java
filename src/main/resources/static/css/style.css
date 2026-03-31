@@ -414,6 +414,35 @@ pre {
     margin-top: 1.5rem;
 }
 
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.max-w-md {
+    max-width: 28rem;
+}
+
+.text-foreground {
+    color: var(--fg);
+}
+
+.text-muted-foreground {
+    color: var(--muted-fg);
+}
+
+.sm\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+@media(max-width:639px) {
+    .sm\:px-6 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
 /* ===== COMPONENTS ===== */
 
 /* Button */
