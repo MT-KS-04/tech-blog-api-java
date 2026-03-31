@@ -10,13 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PlaceholderController {
 
-    // --- Admin Placeholders ---
-    
-    @GetMapping({"/admin/posts", "/admin/posts/**"})
-    public String adminPosts() {
-        return "error/404";
-    }
-
     @GetMapping({"/admin/categories", "/admin/categories/**"})
     public String adminCategories() {
         return "error/404";
