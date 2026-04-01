@@ -201,6 +201,113 @@
         .logout-btn:hover {
             background: #f3f4f6;
         }
+
+        .posts-table-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .posts-table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .posts-table-header h2 {
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .posts-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .posts-table th {
+            background: #f9fafb;
+            padding: 14px 24px;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .posts-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .posts-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .post-title-link {
+            font-weight: 600;
+            color: #111827;
+        }
+        .post-title-link:hover {
+            color: #2fa37c;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge.published {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge.draft {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .badge.category {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .action-flex {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .action-btn {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        .action-btn.delete:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
     </style>
 </head>
 
@@ -246,21 +353,73 @@
                     <p>Quản lý bài viết và bắt đầu xây dựng nội dung của bạn</p>
                 </div>
 
-                <a th:href="@{/author/posts/create}" class="new-post-btn">
+                <a th:href="@{/author/create-post}" class="new-post-btn">
                     <span>＋</span>
                     <span>Viết bài mới</span>
                 </a>
             </div>
 
-            <section class="card empty-posts">
+            <!-- Thông báo -->
+            <div th:if="${successMessage}" style="background: #d1fae5; color: #065f46; padding: 16px; border-radius: 12px; margin-bottom: 24px; font-weight: 600;" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" style="background: #fee2e2; color: #b91c1c; padding: 16px; border-radius: 12px; margin-bottom: 24px; font-weight: 600;" th:text="${errorMessage}"></div>
+
+            <!-- Empty State -->
+            <section class="card empty-posts" th:if="${posts == null or posts.isEmpty()}">
                 <div class="empty-icon">📝</div>
                 <h2>Bạn chưa có bài viết nào</h2>
                 <p>Hãy tạo bài viết đầu tiên để bắt đầu quản lý nội dung của bạn.</p>
 
-                <a th:href="@{/author/posts/create}" class="new-post-btn">
+                <a th:href="@{/author/create-post}" class="new-post-btn">
                     <span>＋</span>
                     <span>Viết bài đầu tiên</span>
                 </a>
+            </section>
+
+            <!-- Table State -->
+            <section class="posts-table-card" th:if="${posts != null and !posts.isEmpty()}">
+                <div class="posts-table-header">
+                    <h2>Danh sách bài viết của bạn</h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="posts-table">
+                        <thead>
+                            <tr>
+                                <th>Tiêu đề</th>
+                                <th>Danh mục</th>
+                                <th>Ngày đăng</th>
+                                <th>Trạng thái</th>
+                                <th>Lượt xem</th>
+                                <th style="text-align: right;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="post : ${posts}">
+                                <td>
+                                    <a th:href="@{'/blog/' + ${post.slug}}" class="post-title-link" th:text="${post.title}" target="_blank">Tiêu đề bài viết</a>
+                                </td>
+                                <td>
+                                    <span class="badge category" th:text="${post.category.name}">Category</span>
+                                </td>
+                                <td th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy')}">
+                                    01/01/2026
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${post.status.name() == 'PUBLISHED' ? 'published' : 'draft'}" 
+                                          th:text="${post.status.name() == 'PUBLISHED' ? 'Đã xuất bản' : (post.status.name() == 'DRAFT' ? 'Bản nháp' : post.status.name())}">Status</span>
+                                </td>
+                                <td th:text="${post.viewCount}">0</td>
+                                <td>
+                                    <div class="action-flex">
+                                        <a th:href="@{/author/edit-post/{id}(id=${post.id})}" class="action-btn">Sửa</a>
+                                        <form th:action="@{/author/delete-post/{id}(id=${post.id})}" method="post" style="margin: 0;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?');">
+                                            <button type="submit" class="action-btn delete">Xóa</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </div>
     </main>

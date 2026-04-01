@@ -41,6 +41,9 @@ public class Post {
     @NotBlank(message = "Slug khong duoc de trong")
     private String slug;
 
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     @NotBlank(message = "Noi dung bai viet khong duoc de trong")
     private String content;
