@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin_layout :: adminHead('Quản lý thẻ')}">
+    <meta charset="UTF-8">
+    <title>Quản lý thẻ | TechPulse Admin</title>
+</head>
+<body th:replace="~{fragments/admin_layout :: adminLayout('Quản lý thẻ', ~{::#main-content})}">
+
+<div id="main-content">
+    <style>
+        .search-wrapper { position: relative; }
+        .search-wrapper svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: hsl(220,10%,46%); pointer-events: none; }
+        .search-input { width: 100%; padding: 10px 12px 10px 38px; border: 1px solid hsl(40,10%,88%); border-radius: 8px; font-size: 14px; background: white; outline: none; transition: border-color 0.15s; }
+        .search-input:focus { border-color: hsl(160,45%,40%); box-shadow: 0 0 0 3px hsla(160,45%,40%, 0.1); }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: hsl(220,10%,46%); border-bottom: 1px solid hsl(40,10%,88%); }
+        td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid hsl(40,10%,88%); vertical-align: middle; }
+        tbody tr:hover { background: hsl(40,20%,99%); }
+
+        .btn-action { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; }
+        .btn-primary { background: hsl(160,45%,40%); color: white; }
+        .btn-primary:hover { background: hsl(160,45%,35%); }
+        
+        .btn-update  { background: hsl(160,45%,95%); color: hsl(160,45%,40%); padding: 6px 12px;}
+        .btn-update:hover { background: hsl(160,45%,88%); }
+        .btn-delete  { background: hsl(0,72%,95%); color: hsl(0,72%,51%); padding: 6px 12px;}
+        
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: hsl(40,15%,90%);  color: hsl(220,10%,40%); }
+    </style>
+
+    <!-- Page Header -->
+    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 style="font-size: 24px; font-weight: 700; margin: 0;">Quản lý thẻ</h1>
+            <p style="font-size: 14px; color: hsl(220,10%,46%); margin: 4px 0 0 0;" th:text="${tags.size() + ' thẻ trên nền tảng'}"></p>
+        </div>
+        <a th:href="@{/admin/tags/create}" class="btn-action btn-primary">
+            <i data-lucide="plus" style="width:16px; height:16px;"></i> Thêm mới
+        </a>
+    </div>
+
+    <!-- Alerts -->
+    <div th:if="${success}" class="alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <!-- Card -->
+    <div class="card">
+        <!-- Search -->
+        <div style="padding: 20px; border-bottom: 1px solid hsl(40,10%,88%);">
+            <form th:action="@{/admin/tags}" method="get" style="display: flex; gap: 10px; align-items: center;">
+                <div class="search-wrapper" style="width: 300px;">
+                    <i data-lucide="search"></i>
+                    <input type="text" name="keyword" class="search-input" th:value="${keyword}" placeholder="Tìm kiếm tên thẻ...">
+                </div>
+                <button type="submit" class="btn-action btn-primary" style="padding: 10px 20px;">Tìm kiếm</button>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 50px;">ID</th>
+                    <th>Tên thẻ</th>
+                    <th>Slug</th>
+                    <th style="text-align: right;">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${tags.empty}">
+                    <td colspan="4" style="text-align: center; padding: 30px; color: hsl(220,10%,46%);">Chưa có thẻ nào. Hãy tạo mới!</td>
+                </tr>
+                <tr th:each="t : ${tags}">
+                    <td style="color: hsl(220,10%,46%); font-weight: 500;" th:text="${t.id}"></td>
+                    <td>
+                        <p style="font-weight: 600; margin:0; color: hsl(220,20%,12%);" th:text="${t.name}"></p>
+                    </td>
+                    <td>
+                        <span class="badge" th:text="${t.slug}"></span>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                            <a th:href="@{/admin/tags/edit/{id}(id=${t.id})}" class="btn-update btn-action">
+                                <i data-lucide="edit" style="width:14px; height:14px;"></i> Sửa
+                            </a>
+                            <form th:action="@{/admin/tags/delete/{id}(id=${t.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thẻ này?')">
+                                <button type="submit" class="btn-delete btn-action">
+                                    <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

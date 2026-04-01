@@ -22,4 +22,7 @@ public class Tag {
     @Column(unique = true, nullable = false)
     @NotBlank(message = "Ten tag khong duoc de trong")
     private String name;
+
+    @Column(unique = true)
+    private String slug;
 }

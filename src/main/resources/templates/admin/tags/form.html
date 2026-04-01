@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin_layout :: adminHead(${tag.id == null ? 'Thêm thẻ mới' : 'Chỉnh sửa thẻ'})}">
+    <meta charset="UTF-8">
+    <title>Thêm thẻ | TechPulse Admin</title>
+</head>
+<body th:replace="~{fragments/admin_layout :: adminLayout(${tag.id == null ? 'Thêm thẻ mới' : 'Chỉnh sửa thẻ'}, ~{::#main-content})}">
+
+<div id="main-content" style="max-width: 800px; margin: 0 auto;">
+    
+    <style>
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; color: hsl(220,20%,12%); margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 10px 14px; border: 1px solid hsl(40,10%,88%); border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+        .form-control:focus { outline: none; border-color: hsl(160,45%,40%); box-shadow: 0 0 0 3px hsla(160,45%,40%, 0.1); }
+        .error-message { color: hsl(0,72%,51%); font-size: 12px; margin-top: 6px; display: block; }
+        
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-decoration: none; border: none; }
+        .btn-primary { background: hsl(160,45%,40%); color: white; }
+        .btn-primary:hover { background: hsl(160,45%,35%); }
+        .btn-secondary { background: white; border: 1px solid hsl(40,10%,88%); color: hsl(220,20%,12%); }
+        .btn-secondary:hover { background: hsl(40,15%,94%); }
+    </style>
+
+    <!-- Header -->
+    <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 16px;">
+        <a th:href="@{/admin/tags}" class="btn-secondary" style="padding: 8px; border-radius: 50%;">
+            <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </a>
+        <div>
+            <h1 style="font-size: 24px; font-weight: 700; margin: 0;" th:text="${tag.id == null ? 'Thêm thẻ mới' : 'Chỉnh sửa thẻ'}">Thêm thẻ mới</h1>
+            <p style="font-size: 14px; color: hsl(220,10%,46%); margin: 4px 0 0 0;">Điền thông tin thẻ để phân loại bài viết.</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card" style="padding: 30px;">
+        <form th:action="@{/admin/tags/save}" th:object="${tag}" method="post">
+            
+            <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:field="*{slug}" />
+            
+            <div class="form-group">
+                <label class="form-label" for="name">Tên thẻ <span style="color: hsl(0,72%,51%);">*</span></label>
+                <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="VD: Java, Spring Boot, AI, React..." autofocus />
+                <span class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Lỗi tên</span>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid hsl(40,10%,88%); margin: 30px 0;" />
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <a th:href="@{/admin/tags}" class="btn btn-secondary">Hủy bỏ</a>
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="save" style="width:18px; height:18px;"></i>
+                    <span th:text="${tag.id == null ? 'Tạo thẻ' : 'Lưu thay đổi'}">Tạo</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
