@@ -58,9 +58,13 @@ public class AuthorDashboardController {
                              RedirectAttributes redirectAttributes) {
         try {
             String username = authentication.getName();
-            Post.Status status = action.equals("publish") ? Post.Status.PUBLISHED : Post.Status.DRAFT;
+            Post.Status status = action.equals("publish") ? Post.Status.PENDING : Post.Status.DRAFT;
             authorPostService.createPost(username, title, summary, content, coverUrl, categoryId, status);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã lưu bài viết thành công!");
+            
+            String successMsg = status == Post.Status.PENDING 
+                ? "Bài viết đã được gửi duyệt. Vui lòng chờ Admin phê duyệt!" 
+                : "Đã lưu bản nháp thành công!";
+            redirectAttributes.addFlashAttribute("successMessage", successMsg);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }
@@ -88,9 +92,13 @@ public class AuthorDashboardController {
                              RedirectAttributes redirectAttributes) {
         try {
             String username = authentication.getName();
-            Post.Status status = action.equals("publish") ? Post.Status.PUBLISHED : Post.Status.DRAFT;
+            Post.Status status = action.equals("publish") ? Post.Status.PENDING : Post.Status.DRAFT;
             authorPostService.updatePost(id, username, title, summary, content, coverUrl, categoryId, status);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật bài viết thành công!");
+            
+            String successMsg = status == Post.Status.PENDING 
+                ? "Bài viết đã được cập nhật và gửi lại cho Admin duyệt!" 
+                : "Đã cập nhật bản nháp thành công!";
+            redirectAttributes.addFlashAttribute("successMessage", successMsg);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }
