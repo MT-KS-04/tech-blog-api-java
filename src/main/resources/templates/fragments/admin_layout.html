@@ -131,6 +131,13 @@
                 <span class="sidebar-label">Quản lý danh mục</span>
             </a>
 
+            <a th:href="@{/admin/tags}" 
+               th:classappend="${activePage == 'tags' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="hash" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Quản lý thẻ</span>
+            </a>
+
             <a th:href="@{/admin/comments}" 
                th:classappend="${activePage == 'comments' ? ' active' : ''}" 
                class="nav-item">
