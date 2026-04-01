@@ -18,27 +18,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, CustomAuthenticationSuccessHandler successHandler)
+            throws Exception {
         httpSecurity
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                    // Cho phép các trang công khai và asset
-                    .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**").permitAll()
-                    // Chỉ ADMIN mới được vào trang quản trị
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    // Mọi yêu cầu khác đều phải đăng nhập
-                    .anyRequest().authenticated()
-                )
-                .formLogin(form -> form 
-                    .loginPage("/login")
-                    // Đăng nhập thành công sẽ chuyển sang trang chủ
-                    .defaultSuccessUrl("/", true)
-                    .permitAll()
-                )
+                        // Cho phép các trang công khai và asset
+                        .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**")
+                        .permitAll()
+                        // Chỉ ADMIN mới được vào trang quản trị
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Mọi yêu cầu khác đều phải đăng nhập
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        // Đăng nhập thành công sẽ chuyển hướng theo role
+                        .successHandler(successHandler)
+                        .permitAll())
                 .logout(logout -> logout
-                    .logoutSuccessUrl("/")
-                    .permitAll()
-                );
+                        .logoutSuccessUrl("/")
+                        .permitAll());
         return httpSecurity.build();
 
     }
