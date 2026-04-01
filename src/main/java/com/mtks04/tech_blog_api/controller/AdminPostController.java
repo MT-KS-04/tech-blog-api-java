@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,7 @@ public class AdminPostController {
             @RequestParam(required = false) Post.Status status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal UserDetails userDetails,
             Model model
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -39,18 +42,18 @@ public class AdminPostController {
         List<Category> categories = categoryRepository.findAll();
 
         model.addAttribute("posts", postPage.getContent());
-        model.addAttribute("postPage", postPage); // Chứa thông tin phân trang
+        model.addAttribute("postPage", postPage);
         model.addAttribute("categories", categories);
         model.addAttribute("statuses", Post.Status.values());
-        
-        // Giữ lại tham số tìm kiếm trên UI
+
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("currentPage", page);
         model.addAttribute("activePage", "posts");
+        model.addAttribute("currentUser", userDetails != null ? userDetails.getUsername() : null);
 
-        return "admin/posts/test_list";
+        return "admin/posts/list";
     }
 
     @PostMapping("/update-status")
