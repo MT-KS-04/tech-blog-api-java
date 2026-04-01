@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin_layout :: adminHead('Quản lý tác giả')}">
+    <meta charset="UTF-8">
+    <title>Quản lý tác giả | TechPulse Admin</title>
+</head>
+<body th:replace="~{fragments/admin_layout :: adminLayout('Quản lý tác giả', ~{::#main-content})}">
+
+    <div id="main-content">
+        <style>
+            /* ── Grid Layout ────────────────────────── */
+            .author-grid { display: grid; gap: 24px; grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            @media (min-width: 640px) { .author-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+            @media (min-width: 1024px) { .author-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+            /* ── Author Card ────────────────────────── */
+            .author-card { background: white; border: 1px solid hsl(40,10%,88%); border-radius: 12px; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
+            .author-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); }
+
+            .author-header { padding: 20px; display: flex; align-items: flex-start; gap: 16px; border-bottom: 1px solid hsl(40,10%,94%); }
+            .author-avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 1px solid hsl(40,10%,92%); }
+            
+            .author-info { flex: 1; min-width: 0; }
+            .author-name { font-size: 16px; font-weight: 700; color: hsl(220,20%,12%); margin: 0 0 4px; }
+            .author-bio { font-size: 12px; color: hsl(220,10%,55%); line-clamp: 2; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+            .author-email { font-size: 11px; color: hsl(220,10%,65%); margin-top: 2px; }
+
+            .author-stats { padding: 16px 20px; display: flex; align-items: center; gap: 16px; }
+            .stat-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: hsl(220,10%,46%); }
+            .stat-item svg { width: 14px; height: 14px; opacity: 0.7; }
+            .stat-value { font-weight: 600; color: hsl(220,20%,12%); }
+
+            /* ── Action Dots Menu ───────────────────── */
+            .dots-menu-trigger { position: absolute; right: 12px; top: 12px; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px; color: hsl(220,10%,60%); transition: background 0.1s; }
+            .dots-menu-trigger:hover { background: hsl(40,15%,94%); color: hsl(220,20%,12%); }
+            
+            .action-dropdown { display: none; position: absolute; right: 8px; top: 44px; min-width: 160px; background: white; border: 1px solid hsl(40,10%,88%); border-radius: 8px; box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1); z-index: 20; padding: 4px; }
+            .action-dropdown.open { display: block; }
+            
+            .action-link { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; color: hsl(220,20%,12%); text-decoration: none; transition: background 0.1s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+            .action-link:hover { background: hsl(40,15%,94%); }
+            .action-link svg { width: 14px; height: 14px; }
+            .action-link.danger { color: hsl(0,72%,51%); }
+            .action-link.danger:hover { background: hsl(0,72%,96%); }
+
+            /* ── Status Indicator ────────────────────── */
+            .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+            .status-online { background: #10b981; box-shadow: 0 0 0 3px #10b98120; }
+            .status-offline { background: #94a3b8; }
+        </style>
+
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="font-display text-2xl font-bold" style="color: hsl(220,20%,12%);">Quản lý tác giả</h1>
+            <p class="text-sm mt-1" style="color: hsl(220,10%,46%);" th:text="${authors.size() + ' tác giả trên nền tảng'}"></p>
+        </div>
+
+        <!-- Success/Error Alerts -->
+        <div th:if="${success}" class="alert-success mb-6" th:text="${success}"></div>
+        <div th:if="${error}" class="alert-error mb-6" th:text="${error}"></div>
+
+        <!-- Author Grid -->
+        <div class="author-grid">
+            <div th:each="author : ${authors}" class="author-card">
+                
+                <!-- Action Menu -->
+                <button class="dots-menu-trigger" onclick="toggleAuthorMenu(this)">
+                    <i data-lucide="more-horizontal"></i>
+                </button>
+                <div class="action-dropdown">
+                    <a href="#" class="action-link"><i data-lucide="eye"></i> Xem hồ sơ</a>
+                    <form th:action="@{/admin/authors/toggle-status/{id}(id=${author.userId})}" method="post">
+                        <button type="submit" class="action-link" th:classappend="${author.active ? 'danger' : ''}">
+                            <i th:data-lucide="${author.active ? 'ban' : 'unlock'}"></i>
+                            <span th:text="${author.active ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}"></span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Header -->
+                <div class="author-header">
+                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${author.username} + '&background=f4f4f5&color=71717a&size=112'}" 
+                         class="author-avatar" alt="">
+                    <div class="author-info">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h2 class="author-name" th:text="${author.username}">Tên tác giả</h2>
+                            <span class="status-dot" th:classappend="${author.active ? 'status-online' : 'status-offline'}"></span>
+                        </div>
+                        <p class="author-bio" th:text="${author.bio != null ? author.bio : 'Chưa có tiểu sử.'}"></p>
+                        <p class="author-email" th:text="${author.email}">email@example.com</p>
+                    </div>
+                </div>
+
+                <!-- Footer Stats -->
+                <div class="author-stats">
+                    <div class="stat-item" title="Tổng số bài viết">
+                        <i data-lucide="file-text"></i>
+                        <span class="stat-value" th:text="${author.postCount}">0</span>
+                        <span>bài</span>
+                    </div>
+                    <div class="stat-item" title="Tổng lượt xem">
+                        <i data-lucide="eye"></i>
+                        <span class="stat-value" th:text="${author.totalViews}">0</span>
+                    </div>
+                    <div class="stat-item" title="Tổng số bình luận">
+                        <i data-lucide="message-square"></i>
+                        <span class="stat-value" th:text="${author.commentCount}">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function toggleAuthorMenu(btn) {
+                const dropdown = btn.nextElementSibling;
+                document.querySelectorAll('.action-dropdown').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('open');
+                });
+                dropdown.classList.toggle('open');
+            }
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.author-card')) {
+                    document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('open'));
+                }
+            });
+        </script>
+
+    </div>
+
+</body>
+</html>

@@ -131,6 +131,13 @@
                 <span class="sidebar-label">Quản lý người dùng</span>
             </a>
 
+            <a th:href="@{/admin/authors}" 
+               th:classappend="${activePage == 'authors' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="briefcase" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Quản lý tác giả</span>
+            </a>
+
             <a th:href="@{/admin/categories}" 
                th:classappend="${activePage == 'categories' ? ' active' : ''}" 
                class="nav-item">

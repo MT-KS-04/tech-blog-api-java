@@ -53,6 +53,9 @@ public class User {
     @Builder.Default
     private boolean isActive = true;
 
+    @Column(length = 255)
+    private String bio;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
