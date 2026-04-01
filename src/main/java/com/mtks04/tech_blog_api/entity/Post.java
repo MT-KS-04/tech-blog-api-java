@@ -24,6 +24,7 @@ public class Post {
 
     public enum Status {
         DRAFT,
+        PENDING,
         PUBLISHED,
         ARCHIVED
     }

@@ -117,6 +117,13 @@
                 <span class="sidebar-label">Quản lý bài viết</span>
             </a>
 
+            <a th:href="@{/admin/approvals}" 
+               th:classappend="${activePage == 'approvals' ? ' active' : ''}" 
+               class="nav-item">
+                <i data-lucide="check-square" class="w-4 h-4 shrink-0"></i>
+                <span class="sidebar-label">Duyệt bài viết</span>
+            </a>
+
             <a th:href="@{/admin/users}" 
                th:classappend="${activePage == 'users' ? ' active' : ''}" 
                class="nav-item">

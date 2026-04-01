@@ -44,4 +44,26 @@ public class AdminPostService {
         }
         postRepository.deleteById(id);
     }
+
+    /**
+     * Duyệt bài viết (Chuyển sang PUBLISHED)
+     */
+    @Transactional
+    public void approvePost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết ID " + id));
+        post.setStatus(Post.Status.PUBLISHED);
+        postRepository.save(post);
+    }
+
+    /**
+     * Từ chối bài viết (Chuyển về DRAFT)
+     */
+    @Transactional
+    public void rejectPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết ID " + id));
+        post.setStatus(Post.Status.DRAFT);
+        postRepository.save(post);
+    }
 }
