@@ -84,6 +84,10 @@ public class Post {
     @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private java.util.List<PostLike> likes = new java.util.ArrayList<>();
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

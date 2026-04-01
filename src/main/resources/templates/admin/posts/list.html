@@ -145,6 +145,7 @@
                             <th>Bài viết</th>
                             <th class="hidden-sm">Tác giả</th>
                             <th class="hidden-md">Danh mục</th>
+                            <th class="hidden-lg">Lượt thích</th>
                             <th class="hidden-lg">Lượt xem</th>
                             <th class="hidden-lg">Trạng thái</th>
                             <th class="hidden-lg">Ngày tạo</th>
@@ -193,6 +194,14 @@
                             <td class="hidden-md">
                                 <span class="badge-category" th:if="${post.category != null}" th:text="${post.category.name}">Danh mục</span>
                                 <span th:if="${post.category == null}" style="color: hsl(220,10%,60%); font-size:12px;">Chưa phân loại</span>
+                            </td>
+
+                            <!-- Likes -->
+                            <td class="hidden-lg">
+                                <div class="view-count">
+                                    <i data-lucide="thumbs-up"></i>
+                                    <span th:text="${post.likes.size()}">0</span>
+                                </div>
                             </td>
 
                             <!-- Views -->
