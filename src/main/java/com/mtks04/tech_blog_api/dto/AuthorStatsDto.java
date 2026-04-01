@@ -15,7 +15,7 @@ public class AuthorStatsDto {
     private String email;
     private String bio;
     private long postCount;
-    private long totalViews;
+    private long totalLikes;
     private long commentCount;
     private boolean active;
 }

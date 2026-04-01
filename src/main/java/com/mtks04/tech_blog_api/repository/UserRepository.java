@@ -23,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT new com.mtks04.tech_blog_api.dto.AuthorStatsDto(" +
            "u.id, u.username, u.email, u.bio, " +
            "COUNT(DISTINCT p.id), " +
-           "COALESCE(SUM(DISTINCT p.viewCount), 0), " +
+           "(SELECT COUNT(pl) FROM PostLike pl WHERE pl.post.author = u), " +
            "(SELECT COUNT(c) FROM Comment c WHERE c.post.author = u), " +
            "u.isActive) " +
            "FROM User u LEFT JOIN Post p ON p.author = u " +
