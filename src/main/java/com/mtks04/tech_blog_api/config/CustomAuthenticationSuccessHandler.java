@@ -1,37 +1,44 @@
 package com.mtks04.tech_blog_api.config;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.Collection;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
-        
-        String redirectUrl = "/"; // Mặc định về trang chủ
-        
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        for (GrantedAuthority grantedAuthority : authorities) {
-            String authorityName = grantedAuthority.getAuthority();
-            if (authorityName.equals("ROLE_ADMIN")) {
-                redirectUrl = "/admin"; // Chuyển hướng sang trang admin
-                break;
-            } else if (authorityName.equals("ROLE_EDITOR") || authorityName.equals("ROLE_AUTHOR")) {
-                redirectUrl = "/author"; // Chuyển hướng sang trang author
-                break;
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication)
+            throws IOException, ServletException {
+
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            String role = authority.getAuthority();
+
+            if ("ROLE_ADMIN".equals(role)) {
+                response.sendRedirect("/admin/dashboard");
+                return;
+            }
+
+            if ("ROLE_EDITOR".equals(role)) {
+                response.sendRedirect("/author/dashboard");
+                return;
+            }
+
+            if ("ROLE_USER".equals(role)) {
+                response.sendRedirect("/");
+                return;
             }
         }
-        
-        response.sendRedirect(redirectUrl);
+
+        response.sendRedirect("/");
     }
 }
