@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin_layout :: adminHead('Quản lý bài viết')}">
+    <meta charset="UTF-8">
+    <title>Quản lý bài viết | TechPulse Admin</title>
+</head>
+<body th:replace="~{fragments/admin_layout :: adminLayout('Quản lý bài viết', ~{::#main-content})}">
+
+    <div id="main-content">
+        <style>
+            /* ── Toolbar ─────────────────────────────── */
+            .search-wrapper { position: relative; }
+            .search-wrapper svg.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: hsl(220,10%,46%); pointer-events: none; }
+            .search-input { width: 100%; padding: 9px 12px 9px 38px; border: 1px solid hsl(40,10%,88%); border-radius: 8px; font-size: 14px; background: white; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+            .search-input:focus { border-color: hsl(160,45%,40%); box-shadow: 0 0 0 3px hsla(160,45%,40%,0.12); }
+            .filter-select { padding: 9px 12px; border: 1px solid hsl(40,10%,88%); border-radius: 8px; font-size: 14px; background: white; outline: none; cursor: pointer; transition: border-color 0.15s; min-width: 160px; }
+            .filter-select:focus { border-color: hsl(160,45%,40%); }
+
+            /* ── Table ───────────────────────────────── */
+            table { width: 100%; border-collapse: collapse; }
+            thead tr { border-bottom: 1px solid hsl(40,10%,88%); }
+            th { padding: 11px 16px; text-align: left; font-size: 12px; font-weight: 600; color: hsl(220,10%,46%); text-transform: uppercase; letter-spacing: 0.05em; }
+            td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
+            tbody tr { border-bottom: 1px solid hsl(40,10%,88%); transition: background 0.12s; }
+            tbody tr:last-child { border-bottom: none; }
+            tbody tr:hover { background: hsl(40,20%,99%); }
+
+            /* ── Post Title Cell ─────────────────────── */
+            .post-title { font-size: 13px; font-weight: 600; color: hsl(220,20%,12%); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+            .post-excerpt { font-size: 11px; color: hsl(220,10%,55%); margin: 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+
+            /* ── Author Cell ─────────────────────────── */
+            .avatar-sm { width: 28px; height: 28px; border-radius: 50%; border: 1px solid hsl(40,10%,88%); }
+
+            /* ── Status Badges ───────────────────────── */
+            .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+            .badge svg { width: 10px; height: 10px; }
+            .badge-published { background: hsl(160,45%,90%); color: hsl(160,45%,30%); }
+            .badge-draft     { background: hsl(40,80%,93%); color: hsl(35,70%,35%); }
+            .badge-archived  { background: hsl(0,72%,93%);  color: hsl(0,62%,40%); }
+
+            /* ── Category Badge ──────────────────────── */
+            .badge-category { display: inline-flex; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: hsl(40,15%,92%); color: hsl(220,10%,40%); }
+
+            /* ── View Count ──────────────────────────── */
+            .view-count { display: flex; align-items: center; gap: 5px; font-size: 13px; color: hsl(220,10%,46%); }
+            .view-count svg { width: 13px; height: 13px; }
+
+            /* ── Action Dropdown ─────────────────────── */
+            .action-cell { position: relative; text-align: right; }
+            .dots-btn { background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px; color: hsl(220,10%,46%); transition: background 0.12s; display: inline-flex; align-items: center; }
+            .dots-btn:hover { background: hsl(40,15%,94%); color: hsl(220,20%,12%); }
+            .action-menu { display: none; position: absolute; right: 0; top: calc(100% + 2px); min-width: 180px; background: white; border: 1px solid hsl(40,10%,88%); border-radius: 8px; box-shadow: 0 8px 24px -4px rgba(0,0,0,0.1); z-index: 50; padding: 4px; }
+            .action-menu.open { display: block; }
+            .action-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: hsl(220,20%,12%); cursor: pointer; text-decoration: none; border: none; background: none; width: 100%; transition: background 0.1s; }
+            .action-item:hover { background: hsl(40,15%,94%); }
+            .action-item.danger { color: hsl(0,72%,51%); }
+            .action-item.danger:hover { background: hsl(0,72%,95%); }
+            .action-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+            /* ── Status select inside menu ───────────── */
+            .status-sub { padding: 4px 0; border-top: 1px solid hsl(40,10%,91%); margin-top: 4px; }
+            .status-sub-label { padding: 6px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: hsl(220,10%,60%); }
+            .status-form-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; font-size: 13px; color: hsl(220,20%,12%); cursor: pointer; border: none; background: none; width: 100%; transition: background 0.1s; }
+            .status-form-item:hover { background: hsl(40,15%,94%); }
+            .status-form-item svg { width: 13px; height: 13px; }
+
+            /* ── Pagination ──────────────────────────── */
+            .pagination { display: flex; align-items: center; gap: 6px; }
+            .page-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid hsl(40,10%,88%); font-size: 13px; font-weight: 500; text-decoration: none; color: hsl(220,20%,12%); transition: background 0.12s; }
+            .page-btn:hover { background: hsl(40,15%,94%); }
+            .page-btn.current { background: hsl(160,45%,40%); color: white; border-color: hsl(160,45%,40%); }
+            .page-btn.disabled { opacity: 0.4; pointer-events: none; }
+
+            /* ── Empty state ─────────────────────────── */
+            .empty-state { padding: 48px; text-align: center; color: hsl(220,10%,55%); }
+            .empty-state svg { width: 32px; height: 32px; margin: 0 auto 12px; display: block; opacity: 0.4; }
+        </style>
+
+        <!-- Page Header -->
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+            <div>
+                <h1 class="font-display text-2xl font-bold" style="color: hsl(220,20%,12%);">Quản lý bài viết</h1>
+                <p class="text-sm mt-1" style="color: hsl(220,10%,46%);" th:text="${postPage.totalElements + ' bài viết trên nền tảng'}"></p>
+            </div>
+            <!-- Nút Thêm bài (placeholder cho Phase 3) -->
+            <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white"
+               style="background: hsl(160,45%,40%); transition: background 0.15s;"
+               onmouseover="this.style.background='hsl(160,45%,34%)'" onmouseout="this.style.background='hsl(160,45%,40%)'">
+                <i data-lucide="plus" style="width:16px;height:16px;"></i>
+                Thêm bài viết
+            </a>
+        </div>
+
+        <!-- Alerts -->
+        <div th:if="${success}" class="alert-success mb-4" th:text="${success}"></div>
+        <div th:if="${error}" class="alert-error mb-4" th:text="${error}"></div>
+
+        <!-- Main Card -->
+        <div class="card">
+
+            <!-- Toolbar: Search + Filters -->
+            <div class="p-5 border-b border-stone-200">
+                <form th:action="@{/admin/posts}" method="get">
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+
+                        <!-- Search -->
+                        <div class="search-wrapper" style="flex: 1; min-width: 200px;">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" name="keyword" class="search-input"
+                                   th:value="${keyword}" placeholder="Tìm kiếm bài viết...">
+                        </div>
+
+                        <!-- Category Filter -->
+                        <select name="categoryId" class="filter-select">
+                            <option value="">Tất cả danh mục</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                                    th:selected="${cat.id == selectedCategoryId}"></option>
+                        </select>
+
+                        <!-- Status Filter -->
+                        <select name="status" class="filter-select">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="PUBLISHED" th:selected="${selectedStatus != null and selectedStatus.name() == 'PUBLISHED'}">Đã xuất bản</option>
+                            <option value="DRAFT"     th:selected="${selectedStatus != null and selectedStatus.name() == 'DRAFT'}">Bản nháp</option>
+                            <option value="ARCHIVED"  th:selected="${selectedStatus != null and selectedStatus.name() == 'ARCHIVED'}">Lưu trữ</option>
+                        </select>
+
+                        <input type="hidden" name="page" value="0">
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white"
+                                style="background: hsl(160,45%,40%); border: none; cursor: pointer; white-space: nowrap;">
+                            <i data-lucide="filter" style="width:14px;height:14px;"></i> Lọc
+                        </button>
+                        <a th:href="@{/admin/posts}" class="px-3 py-2 rounded-lg text-sm text-stone-500 hover:bg-stone-100" style="text-decoration: none; white-space: nowrap;">Reset</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table -->
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:44px;">#</th>
+                            <th>Bài viết</th>
+                            <th class="hidden-sm">Tác giả</th>
+                            <th class="hidden-md">Danh mục</th>
+                            <th class="hidden-lg">Lượt xem</th>
+                            <th class="hidden-lg">Trạng thái</th>
+                            <th class="hidden-lg">Ngày tạo</th>
+                            <th style="text-align:right;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Empty -->
+                        <tr th:if="${#lists.isEmpty(posts)}">
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i data-lucide="file-x-2"></i>
+                                    <p style="font-weight: 600; margin: 0 0 4px;">Không tìm thấy bài viết nào</p>
+                                    <p style="font-size: 13px;">Thử điều chỉnh bộ lọc hoặc thêm bài viết mới.</p>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Row -->
+                        <tr th:each="post, stat : ${posts}">
+                            <!-- STT -->
+                            <td style="color: hsl(220,10%,55%); font-weight:500;"
+                                th:text="${currentPage * 10 + stat.count}">1</td>
+
+                            <!-- Post Title + excerpt -->
+                            <td>
+                                <div style="max-width:300px;">
+                                    <p class="post-title" th:text="${post.title}">Tiêu đề bài viết</p>
+                                    <p class="post-excerpt">
+                                        <span th:text="${post.author != null ? '@' + post.author.username : 'Ẩn danh'}"></span>
+                                        <span th:if="${post.category != null}"> · <span th:text="${post.category.name}"></span></span>
+                                    </p>
+                                </div>
+                            </td>
+
+                            <!-- Author -->
+                            <td class="hidden-sm">
+                                <div style="display: flex; align-items: center; gap: 8px;" th:if="${post.author != null}">
+                                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${post.author.username} + '&background=4ade80&color=fff&size=28'}" class="avatar-sm" alt="">
+                                    <span style="font-size:13px;" th:text="${post.author.username}"></span>
+                                </div>
+                                <span th:if="${post.author == null}" style="color: hsl(220,10%,60%); font-size:13px;">Ẩn danh</span>
+                            </td>
+
+                            <!-- Category -->
+                            <td class="hidden-md">
+                                <span class="badge-category" th:if="${post.category != null}" th:text="${post.category.name}">Danh mục</span>
+                                <span th:if="${post.category == null}" style="color: hsl(220,10%,60%); font-size:12px;">Chưa phân loại</span>
+                            </td>
+
+                            <!-- Views -->
+                            <td class="hidden-lg">
+                                <div class="view-count">
+                                    <i data-lucide="eye"></i>
+                                    <span th:text="${post.viewCount != null ? post.viewCount : 0}">0</span>
+                                </div>
+                            </td>
+
+                            <!-- Status Badge -->
+                            <td class="hidden-lg">
+                                <span th:if="${post.status.name() == 'PUBLISHED'}" class="badge badge-published">
+                                    <i data-lucide="check-circle"></i> Đã xuất bản
+                                </span>
+                                <span th:if="${post.status.name() == 'DRAFT'}" class="badge badge-draft">
+                                    <i data-lucide="clock"></i> Bản nháp
+                                </span>
+                                <span th:if="${post.status.name() == 'ARCHIVED'}" class="badge badge-archived">
+                                    <i data-lucide="archive"></i> Lưu trữ
+                                </span>
+                            </td>
+
+                            <!-- Created At -->
+                            <td class="hidden-lg" style="color: hsl(220,10%,55%); font-size:13px;"
+                                th:text="${post.createdAt != null ? #temporals.format(post.createdAt, 'dd/MM/yyyy') : '-'}">
+                            </td>
+
+                            <!-- Actions Dropdown -->
+                            <td class="action-cell">
+                                <button class="dots-btn" onclick="toggleActionMenu(this)" type="button">
+                                    <i data-lucide="more-horizontal" style="width:16px;height:16px;"></i>
+                                </button>
+                                <div class="action-menu">
+                                    <!-- View on site -->
+                                    <a th:href="@{'/post/' + ${post.slug}}" target="_blank" class="action-item">
+                                        <i data-lucide="external-link"></i> Xem bài viết
+                                    </a>
+
+                                    <!-- Status submenu -->
+                                    <div class="status-sub">
+                                        <p class="status-sub-label">Đổi trạng thái</p>
+
+                                        <form th:action="@{/admin/posts/update-status}" method="post">
+                                            <input type="hidden" name="postId" th:value="${post.id}">
+                                            <input type="hidden" name="status" value="PUBLISHED">
+                                            <button type="submit" class="status-form-item"
+                                                    th:disabled="${post.status.name() == 'PUBLISHED'}">
+                                                <i data-lucide="check-circle" style="color: hsl(160,45%,40%);"></i>
+                                                <span>Xuất bản</span>
+                                            </button>
+                                        </form>
+
+                                        <form th:action="@{/admin/posts/update-status}" method="post">
+                                            <input type="hidden" name="postId" th:value="${post.id}">
+                                            <input type="hidden" name="status" value="DRAFT">
+                                            <button type="submit" class="status-form-item"
+                                                    th:disabled="${post.status.name() == 'DRAFT'}">
+                                                <i data-lucide="file-edit" style="color: hsl(40,70%,45%);"></i>
+                                                <span>Chuyển nháp</span>
+                                            </button>
+                                        </form>
+
+                                        <form th:action="@{/admin/posts/update-status}" method="post">
+                                            <input type="hidden" name="postId" th:value="${post.id}">
+                                            <input type="hidden" name="status" value="ARCHIVED">
+                                            <button type="submit" class="status-form-item"
+                                                    th:disabled="${post.status.name() == 'ARCHIVED'}">
+                                                <i data-lucide="archive" style="color: hsl(220,10%,55%);"></i>
+                                                <span>Lưu trữ</span>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Delete -->
+                                    <div style="padding-top: 4px; border-top: 1px solid hsl(40,10%,91%); margin-top:4px;">
+                                        <form th:action="@{/admin/posts/delete/{id}(id=${post.id})}" method="post"
+                                              onsubmit="return confirm('Bạn có chắc muốn XÓA VĨNH VIỄN bài viết này? Thao tác không thể hoàn tác!')">
+                                            <button type="submit" class="action-item danger">
+                                                <i data-lucide="trash-2"></i> Xóa vĩnh viễn
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="p-5 flex items-center justify-between border-t border-stone-200" th:if="${postPage.totalPages > 0}">
+                <span class="text-sm" style="color: hsl(220,10%,55%);"
+                      th:text="${'Hiển thị ' + posts.size() + ' / ' + postPage.totalElements + ' bài viết'}">
+                </span>
+                <div class="pagination" th:if="${postPage.totalPages > 1}">
+                    <a class="page-btn" th:classappend="${currentPage == 0 ? ' disabled' : ''}"
+                       th:href="@{/admin/posts(page=${currentPage - 1}, keyword=${keyword}, categoryId=${selectedCategoryId}, status=${selectedStatus})}">
+                       Trước
+                    </a>
+                    <th:block th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}">
+                        <a th:href="@{/admin/posts(page=${i}, keyword=${keyword}, categoryId=${selectedCategoryId}, status=${selectedStatus})}"
+                           class="page-btn" th:classappend="${i == currentPage ? ' current' : ''}"
+                           th:text="${i + 1}"></a>
+                    </th:block>
+                    <a class="page-btn" th:classappend="${currentPage >= postPage.totalPages - 1 ? ' disabled' : ''}"
+                       th:href="@{/admin/posts(page=${currentPage + 1}, keyword=${keyword}, categoryId=${selectedCategoryId}, status=${selectedStatus})}">
+                       Sau
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function toggleActionMenu(btn) {
+                const menu = btn.nextElementSibling;
+                document.querySelectorAll('.action-menu').forEach(m => {
+                    if (m !== menu) m.classList.remove('open');
+                });
+                menu.classList.toggle('open');
+            }
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.action-cell')) {
+                    document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('open'));
+                }
+            });
+        </script>
+    </div>
+
+</body>
+</html>
