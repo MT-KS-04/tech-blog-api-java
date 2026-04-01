@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin_layout :: adminHead('Duyệt bài viết')}">
+    <meta charset="UTF-8">
+    <title>Duyệt bài viết | TechPulse Admin</title>
+</head>
+<body th:replace="~{fragments/admin_layout :: adminLayout('Duyệt bài viết', ~{::#main-content})}">
+
+    <div id="main-content">
+        <style>
+            /* ── Table ───────────────────────────────── */
+            table { width: 100%; border-collapse: collapse; }
+            thead tr { border-bottom: 1px solid hsl(40,10%,88%); }
+            th { padding: 11px 16px; text-align: left; font-size: 12px; font-weight: 600; color: hsl(220,10%,46%); text-transform: uppercase; letter-spacing: 0.05em; }
+            td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
+            tbody tr { border-bottom: 1px solid hsl(40,10%,88%); transition: background 0.12s; }
+            tbody tr:last-child { border-bottom: none; }
+            tbody tr:hover { background: hsl(40,20%,99%); }
+
+            /* ── Post Header ─────────────────────────── */
+            .post-title { font-size: 13px; font-weight: 600; color: hsl(220,20%,12%); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 350px; }
+            .post-meta { font-size: 11px; color: hsl(220,10%,55%); margin: 2px 0 0; }
+
+            /* ── Common Styles (Copy from Layout if needed) ── */
+            .avatar-sm { width: 32px; height: 32px; border-radius: 50%; border: 1px solid hsl(40,10%,88%); }
+            .badge-pending { display: inline-flex; align-items: center; gap: 5px; background: hsl(40,90%,93%); color: hsl(35,85%,40%); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+            
+            /* ── Buttons ──────────────────────────────── */
+            .btn-action { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: 0.15s; text-decoration: none; }
+            .btn-approve { background: hsl(160,45%,93%); color: hsl(160,45%,34%); }
+            .btn-approve:hover { background: hsl(160,45%,40%); color: white; }
+            .btn-reject { background: hsl(0,72%,95%); color: hsl(0,72%,51%); }
+            .btn-reject:hover { background: hsl(0,72%,51%); color: white; }
+            .btn-preview { background: hsl(40,15%,92%); color: hsl(220,10%,40%); }
+            .btn-preview:hover { background: hsl(40,15%,85%); }
+
+            /* ── Empty State ─────────────────────────── */
+            .empty-state { padding: 60px; text-align: center; color: hsl(220,10%,55%); }
+            .empty-state svg { width: 44px; height: 44px; margin: 0 auto 16px; opacity: 0.3; }
+
+            /* ── Pagination ──────────────────────────── */
+            .pagination { display: flex; align-items: center; gap: 6px; }
+            .page-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid hsl(40,10%,88%); font-size: 13px; font-weight: 500; text-decoration: none; color: hsl(220,20%,12%); transition: background 0.12s; }
+            .page-btn.current { background: hsl(160,45%,40%); color: white; border-color: hsl(160,45%,40%); }
+            .page-btn.disabled { opacity: 0.4; pointer-events: none; }
+        </style>
+
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="font-display text-2xl font-bold" style="color: hsl(220,20%,12%);">Danh sách chờ duyệt</h1>
+            <p class="text-sm mt-1" style="color: hsl(220,10%,46%);" th:text="${postPage.totalElements + ' bài viết cần xử lý'}"></p>
+        </div>
+
+        <!-- Alerts -->
+        <div th:if="${success}" class="alert-success mb-4" th:text="${success}"></div>
+        <div th:if="${error}" class="alert-error mb-4" th:text="${error}"></div>
+
+        <!-- Main Card Container -->
+        <div class="card overflow-hidden">
+            
+            <!-- Table Header Section (Empty Toolbar for spacing) -->
+            <div class="px-5 py-4 border-b border-stone-200 bg-stone-50/50">
+                <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">Bài viết chờ xác nhận</span>
+            </div>
+
+            <!-- Scrollable Table Wrapper -->
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Nội dung</th>
+                            <th>Tác giả</th>
+                            <th>Ngày gửi</th>
+                            <th>Trạng thái</th>
+                            <th style="text-align: right;">Thao tác duyệt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Empty Case -->
+                        <tr th:if="${#lists.isEmpty(posts)}">
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i data-lucide="check-square"></i>
+                                    <p class="text-lg font-semibold mb-1">Xong việc rồi!</p>
+                                    <p class="text-sm">Hiện tại không có bài viết nào đang chờ duyệt.</p>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- List Rows -->
+                        <tr th:each="post, stat : ${posts}">
+                            <!-- STT -->
+                            <td style="color: hsl(220,10%,55%); font-weight: 500;"
+                                th:text="${currentPage * 10 + stat.count}">1</td>
+
+                            <!-- Content Info -->
+                            <td>
+                                <div style="max-width: 350px;">
+                                    <p class="post-title" th:text="${post.title}">Tiêu đề bài viết</p>
+                                    <p class="post-meta">
+                                        <span th:if="${post.category != null}" th:text="${post.category.name}"></span>
+                                        <span th:if="${post.category == null}">Không phân loại</span>
+                                        · <span th:text="${#strings.abbreviate(post.content, 80)}"></span>
+                                    </p>
+                                </div>
+                            </td>
+
+                            <!-- Author Info -->
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${post.author != null ? post.author.username : 'A'} + '&background=f4f4f5&color=71717a&size=32'}" 
+                                         class="avatar-sm" alt="">
+                                    <div>
+                                        <p style="font-weight: 600; margin: 0; font-size: 13px;" th:text="${post.author != null ? post.author.username : 'Ẩn danh'}"></p>
+                                        <p style="color: hsl(220,10%,55%); font-size: 11px; margin: 0;" th:text="${post.author != null ? post.author.email : ''}"></p>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Submission Date -->
+                            <td style="color: hsl(220,10%,55%); font-size: 13px;"
+                                th:text="${post.createdAt != null ? #temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">
+                                01/01/2026
+                            </td>
+
+                            <!-- Pending Badge -->
+                            <td>
+                                <span class="badge-pending">
+                                    <i data-lucide="clock"></i> Chờ duyệt
+                                </span>
+                            </td>
+
+                            <!-- Approval Actions -->
+                            <td>
+                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <!-- Preview Button -->
+                                    <a th:href="@{'/post/' + ${post.slug}}" target="_blank" class="btn-action btn-preview" title="Xem trước">
+                                        <i data-lucide="eye" style="width:16px;height:16px;"></i>
+                                        <span>Xem thử</span>
+                                    </a>
+
+                                    <!-- Approve Button -->
+                                    <form th:action="@{/admin/approvals/approve/{id}(id=${post.id})}" method="post">
+                                        <button type="submit" class="btn-action btn-approve">
+                                            <i data-lucide="check" style="width:16px;height:16px;"></i>
+                                            <span>Duyệt bài</span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Reject Button -->
+                                    <form th:action="@{/admin/approvals/reject/{id}(id=${post.id})}" method="post"
+                                          onsubmit="return confirm('Bạn có chắc muốn từ chối bài viết này? Nội dung sẽ bị trả về trạng thái Bản nháp.')">
+                                        <button type="submit" class="btn-action btn-reject">
+                                            <i data-lucide="x" style="width:16px;height:16px;"></i>
+                                            <span>Từ chối</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Pagination -->
+            <div class="px-6 py-5 border-t border-stone-200 bg-stone-50/50 flex items-center justify-between" th:if="${postPage.totalPages > 1}">
+                <p class="text-xs font-medium text-stone-500"
+                   th:text="${'Đang hiển thị trang ' + (currentPage + 1) + ' trên ' + postPage.totalPages}">
+                </p>
+                <div class="pagination">
+                    <a class="page-btn" th:classappend="${currentPage == 0 ? ' disabled' : ''}"
+                       th:href="@{/admin/approvals(page=${currentPage - 1})}">Trước</a>
+                    
+                    <th:block th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}">
+                        <a th:href="@{/admin/approvals(page=${i})}" class="page-btn" 
+                           th:classappend="${i == currentPage ? ' current' : ''}" th:text="${i + 1}"></a>
+                    </th:block>
+
+                    <a class="page-btn" th:classappend="${currentPage >= postPage.totalPages - 1 ? ' disabled' : ''}"
+                       th:href="@{/admin/approvals(page=${currentPage + 1})}">Sau</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

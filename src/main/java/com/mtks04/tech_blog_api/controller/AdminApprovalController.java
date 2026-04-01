@@ -41,7 +41,7 @@ public class AdminApprovalController {
         model.addAttribute("activePage", "approvals");
         model.addAttribute("currentUser", userDetails != null ? userDetails.getUsername() : null);
 
-        return "admin/approvals/test_list";
+        return "admin/approvals/list";
     }
 
     /**
