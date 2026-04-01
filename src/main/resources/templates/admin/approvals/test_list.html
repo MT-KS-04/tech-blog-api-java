@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>TEST DUYỆT BÀI - TechPulse</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8f8f8; }
+        .alert { padding: 10px; margin-bottom: 20px; border-radius: 4px; }
+        .success { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .btn { padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-approve { background-color: #166534; color: white; border: none; }
+        .btn-reject { background-color: #ef4444; color: white; border: none; }
+        .empty { text-align: center; padding: 30px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <h1>PHASE 1: KIỂM THỬ DUYỆT BÀI VIẾT (Backend & Logic)</h1>
+    <p><a href="/admin">&larr; Quay lại Dashboard</a></p>
+
+    <!-- Thông báo -->
+    <div th:if="${success}" class="alert success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert error" th:text="${error}"></div>
+
+    <!-- Bảng danh sách bài chờ duyệt -->
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Tiêu đề</th>
+                <th>Tác giả</th>
+                <th>Ngày gửi</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${#lists.isEmpty(posts)}">
+                <td colspan="5" class="empty">Hiện tại không có bài viết nào đang chờ duyệt.</td>
+            </tr>
+            <tr th:each="post, stat : ${posts}">
+                <td th:text="${stat.count + (currentPage * 10)}">1</td>
+                <td th:text="${post.title}">Tiêu đề bài viết</td>
+                <td th:text="${post.author != null ? post.author.username : 'Ẩn danh'}">Tác giả</td>
+                <td th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày đăng</td>
+                <td>
+                    <!-- Cột thao tác duyệt -->
+                    <div style="display: flex; gap: 8px;">
+                        <!-- Nút Duyệt -->
+                        <form th:action="@{/admin/approvals/approve/{id}(id=${post.id})}" method="post">
+                            <button type="submit" class="btn btn-approve">Duyệt bài</button>
+                        </form>
+
+                        <!-- Nút Từ chối -->
+                        <form th:action="@{/admin/approvals/reject/{id}(id=${post.id})}" method="post">
+                            <button type="submit" class="btn btn-reject">Từ chối</button>
+                        </form>
+
+                        <!-- Link xem trước -->
+                        <a th:href="@{'/post/' + ${post.slug}}" target="_blank" class="btn">Xem trước</a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Phân trang -->
+    <div style="margin-top: 20px;" th:if="${postPage.totalPages > 1}">
+        <span>Trang: </span>
+        <th:block th:each="i : ${#numbers.sequence(0, postPage.totalPages - 1)}">
+            <a th:href="@{/admin/approvals(page=${i})}" th:text="${i + 1}"
+               th:style="${i == currentPage ? 'font-weight: bold; color: red;' : ''}"></a>
+        </th:block>
+    </div>
+
+</body>
+</html>
