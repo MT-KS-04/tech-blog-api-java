@@ -1,15 +1,17 @@
 package com.mtks04.tech_blog_api.service;
 
-import com.mtks04.tech_blog_api.entity.User;
-import com.mtks04.tech_blog_api.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.Collections;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import com.mtks04.tech_blog_api.entity.User;
+import com.mtks04.tech_blog_api.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -19,20 +21,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Tìm kiếm người dùng từ Database
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Khong tim thay nguoi dung: " + username));
 
-        // Kiểm tra trạng thái hoạt động (Nếu bị khóa thì không cho đăng nhập)
         if (!user.isActive()) {
             throw new UsernameNotFoundException("Tai khoan nay da bi khoa!");
         }
 
-        // Chuyển đổi quyền hạn (Role) sang SimpleGrantedAuthority
-        // Lưu ý: Spring Security yêu cầu Prefix "ROLE_" cho phân quyền hasRole()
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
+        SimpleGrantedAuthority authority =
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
 
-        // Trả về đối tượng User của Spring Security
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
