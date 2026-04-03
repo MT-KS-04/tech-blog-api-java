@@ -36,3 +36,6 @@ build/
 dbml-data.txt
 
 Frontend
+
+/uploads/*
+!/uploads/.gitignore

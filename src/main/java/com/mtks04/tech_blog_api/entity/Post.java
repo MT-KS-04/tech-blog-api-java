@@ -26,7 +26,8 @@ public class Post {
         DRAFT,
         PENDING,
         PUBLISHED,
-        ARCHIVED
+        ARCHIVED,
+        REJECTED
     }
 
     @Id

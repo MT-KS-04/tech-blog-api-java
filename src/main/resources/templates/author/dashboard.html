@@ -283,6 +283,10 @@
             background: #fef3c7;
             color: #92400e;
         }
+        .badge.rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
         .badge.category {
             background: #e0f2fe;
             color: #0369a1;
@@ -408,8 +412,8 @@
                                     01/01/2026
                                 </td>
                                 <td>
-                                    <span class="badge" th:classappend="${post.status.name() == 'PUBLISHED' ? 'published' : (post.status.name() == 'PENDING' ? 'pending' : 'draft')}" 
-                                          th:text="${post.status.name() == 'PUBLISHED' ? 'Đã xuất bản' : (post.status.name() == 'PENDING' ? 'Đang chờ duyệt' : 'Bản nháp')}">Status</span>
+                                    <span class="badge" th:classappend="${post.status.name() == 'PUBLISHED' ? 'published' : (post.status.name() == 'PENDING' ? 'pending' : (post.status.name() == 'REJECTED' ? 'rejected' : 'draft'))}" 
+                                          th:text="${post.status.name() == 'PUBLISHED' ? 'Đã xuất bản' : (post.status.name() == 'PENDING' ? 'Đang chờ duyệt' : (post.status.name() == 'REJECTED' ? 'Bị từ chối' : 'Bản nháp'))}">Status</span>
                                 </td>
                                 <td th:text="${post.viewCount}">0</td>
                                 <td>
