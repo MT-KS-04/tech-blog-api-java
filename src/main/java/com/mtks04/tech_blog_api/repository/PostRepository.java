@@ -24,6 +24,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // Tìm bài viết theo tác giả
     Page<Post> findByAuthorId(Long authorId, Pageable pageable);
 
+    @Query("SELECT p FROM Post p WHERE p.author.id = :authorId " +
+            "AND (:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(COALESCE(p.summary, '')) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Post> searchByAuthorIdAndKeyword(
+            @Param("authorId") Long authorId,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
     // Tìm bài viết theo danh mục
     Page<Post> findByCategoryId(Long categoryId, Pageable pageable);
 

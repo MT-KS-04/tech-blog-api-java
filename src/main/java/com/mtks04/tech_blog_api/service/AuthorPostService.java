@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.text.Normalizer;
 import java.util.Locale;
@@ -47,6 +48,15 @@ public class AuthorPostService {
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Author not found"));
         return postRepository.findByAuthorId(author.getId(), pageable);
+    }
+
+    public Page<Post> searchPostsByAuthor(String username, String keyword, Pageable pageable) {
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Author not found"));
+        if (!StringUtils.hasText(keyword)) {
+            return postRepository.findByAuthorId(author.getId(), pageable);
+        }
+        return postRepository.searchByAuthorIdAndKeyword(author.getId(), keyword.trim(), pageable);
     }
 
     @Transactional
