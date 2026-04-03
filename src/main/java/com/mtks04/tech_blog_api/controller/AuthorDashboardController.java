@@ -35,13 +35,19 @@ public class AuthorDashboardController {
     @GetMapping("/dashboard")
     public String dashboard(Model model, Authentication authentication,
                             @RequestParam(defaultValue = "0") int page,
-                            @RequestParam(defaultValue = "10") int size) {
+                            @RequestParam(defaultValue = "10") int size,
+                            @RequestParam(required = false) String keyword) {
         String username = authentication.getName();
         
-        Page<Post> postsPage = authorPostService.getPostsByAuthor(username, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+        Page<Post> postsPage = authorPostService.searchPostsByAuthor(
+                username,
+                keyword,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+        );
         
         model.addAttribute("postsPage", postsPage);
         model.addAttribute("posts", postsPage.getContent());
+        model.addAttribute("keyword", keyword);
         
         // Optional stats (simplified for UI)
         long totalPosts = postsPage.getTotalElements();

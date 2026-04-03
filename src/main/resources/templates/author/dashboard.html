@@ -224,6 +224,26 @@
             color: #111827;
         }
 
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            width: 280px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #2fa37c;
+            box-shadow: 0 0 0 2px rgba(47, 163, 124, 0.1);
+        }
+
         .table-responsive {
             overflow-x: auto;
         }
@@ -316,6 +336,18 @@
             background: #fee2e2;
             color: #b91c1c;
         }
+
+        @media (max-width: 900px) {
+            .posts-table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -374,8 +406,8 @@
             <!-- Empty State -->
             <section class="card empty-posts" th:if="${posts == null or posts.isEmpty()}">
                 <div class="empty-icon">📝</div>
-                <h2>Bạn chưa có bài viết nào</h2>
-                <p>Hãy tạo bài viết đầu tiên để bắt đầu quản lý nội dung của bạn.</p>
+                <h2 th:text="${keyword != null and !#strings.isEmpty(keyword)} ? 'Không tìm thấy bài viết phù hợp' : 'Bạn chưa có bài viết nào'">Bạn chưa có bài viết nào</h2>
+                <p th:text="${keyword != null and !#strings.isEmpty(keyword)} ? 'Thử từ khóa khác hoặc xóa bộ lọc tìm kiếm.' : 'Hãy tạo bài viết đầu tiên để bắt đầu quản lý nội dung của bạn.'">Hãy tạo bài viết đầu tiên để bắt đầu quản lý nội dung của bạn.</p>
 
                 <a th:href="@{/author/create-post}" class="new-post-btn">
                     <span>＋</span>
@@ -387,6 +419,12 @@
             <section class="posts-table-card" th:if="${posts != null and !posts.isEmpty()}">
                 <div class="posts-table-header">
                     <h2>Danh sách bài viết của bạn</h2>
+                    <form class="search-form" th:action="@{/author/dashboard}" method="get">
+                        <input type="hidden" name="size" th:value="${postsPage != null ? postsPage.size : 10}" />
+                        <input class="search-input" type="text" name="keyword" placeholder="Tìm kiếm bài viết..." th:value="${keyword}" />
+                        <button class="action-btn" type="submit">Tìm</button>
+                        <a th:if="${keyword != null and !#strings.isEmpty(keyword)}" th:href="@{/author/dashboard}" class="action-btn">Xóa</a>
+                    </form>
                 </div>
                 <div class="table-responsive">
                     <table class="posts-table">
@@ -406,7 +444,7 @@
                                     <a th:href="@{'/blog/' + ${post.slug}}" class="post-title-link" th:text="${post.title}" target="_blank">Tiêu đề bài viết</a>
                                 </td>
                                 <td>
-                                    <span class="badge category" th:text="${post.category.name}">Category</span>
+                                    <span class="badge category" th:text="${post.category != null ? post.category.name : 'Chưa phân loại'}">Category</span>
                                 </td>
                                 <td th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy')}">
                                     01/01/2026
