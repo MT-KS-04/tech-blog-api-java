@@ -37,7 +37,8 @@
             .badge svg { width: 10px; height: 10px; }
             .badge-published { background: hsl(160,45%,90%); color: hsl(160,45%,30%); }
             .badge-draft     { background: hsl(40,80%,93%); color: hsl(35,70%,35%); }
-            .badge-archived  { background: hsl(0,72%,93%);  color: hsl(0,62%,40%); }
+            .badge-archived  { background: hsl(220,10%,90%); color: hsl(220,10%,40%); }
+            .badge-rejected  { background: hsl(0,72%,93%);  color: hsl(0,62%,40%); }
 
             /* ── Category Badge ──────────────────────── */
             .badge-category { display: inline-flex; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: hsl(40,15%,92%); color: hsl(220,10%,40%); }
@@ -123,6 +124,8 @@
                             <option value="">Tất cả trạng thái</option>
                             <option value="PUBLISHED" th:selected="${selectedStatus != null and selectedStatus.name() == 'PUBLISHED'}">Đã xuất bản</option>
                             <option value="DRAFT"     th:selected="${selectedStatus != null and selectedStatus.name() == 'DRAFT'}">Bản nháp</option>
+                            <option value="PENDING"   th:selected="${selectedStatus != null and selectedStatus.name() == 'PENDING'}">Chờ duyệt</option>
+                            <option value="REJECTED"  th:selected="${selectedStatus != null and selectedStatus.name() == 'REJECTED'}">Bị từ chối</option>
                             <option value="ARCHIVED"  th:selected="${selectedStatus != null and selectedStatus.name() == 'ARCHIVED'}">Lưu trữ</option>
                         </select>
 
@@ -137,7 +140,7 @@
             </div>
 
             <!-- Table -->
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; padding-bottom: 120px; margin-bottom: -120px;">
                 <table>
                     <thead>
                         <tr>
@@ -218,7 +221,13 @@
                                     <i data-lucide="check-circle"></i> Đã xuất bản
                                 </span>
                                 <span th:if="${post.status.name() == 'DRAFT'}" class="badge badge-draft">
-                                    <i data-lucide="clock"></i> Bản nháp
+                                    <i data-lucide="file-text"></i> Bản nháp
+                                </span>
+                                <span th:if="${post.status.name() == 'PENDING'}" class="badge" style="background: hsl(40,100%,90%); color: hsl(40,100%,30%);">
+                                    <i data-lucide="clock"></i> Chờ duyệt
+                                </span>
+                                <span th:if="${post.status.name() == 'REJECTED'}" class="badge badge-rejected">
+                                    <i data-lucide="alert-circle"></i> Bị từ chối
                                 </span>
                                 <span th:if="${post.status.name() == 'ARCHIVED'}" class="badge badge-archived">
                                     <i data-lucide="archive"></i> Lưu trữ
@@ -262,6 +271,17 @@
                                                     th:disabled="${post.status.name() == 'DRAFT'}">
                                                 <i data-lucide="file-edit" style="color: hsl(40,70%,45%);"></i>
                                                 <span>Chuyển nháp</span>
+                                            </button>
+                                        </form>
+
+                                        <form th:action="@{/admin/posts/update-status}" method="post">
+                                            <input type="hidden" name="postId" th:value="${post.id}">
+                                            <input type="hidden" name="status" value="REJECTED">
+                                            <button type="submit" class="status-form-item"
+                                                    th:disabled="${post.status.name() == 'REJECTED'}"
+                                                    style="color: hsl(0,72%,51%);">
+                                                <i data-lucide="x-circle"></i>
+                                                <span>Từ chối bài</span>
                                             </button>
                                         </form>
 

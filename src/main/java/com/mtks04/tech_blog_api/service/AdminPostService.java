@@ -63,7 +63,7 @@ public class AdminPostService {
     public void rejectPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết ID " + id));
-        post.setStatus(Post.Status.DRAFT);
+        post.setStatus(Post.Status.REJECTED);
         postRepository.save(post);
     }
 }
