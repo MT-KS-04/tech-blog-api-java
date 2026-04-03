@@ -22,4 +22,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // Đếm số comment của một bài viết
     long countByPostId(Long postId);
+
+    // Đếm tổng comment trên tất cả bài viết của một tác giả
+    long countByPostAuthorId(Long authorId);
 }

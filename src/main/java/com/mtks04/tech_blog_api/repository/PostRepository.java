@@ -23,6 +23,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // Tìm bài viết theo tác giả
     Page<Post> findByAuthorId(Long authorId, Pageable pageable);
+    long countByAuthorId(Long authorId);
+
+    @Query("SELECT COALESCE(SUM(p.viewCount), 0) FROM Post p WHERE p.author.id = :authorId")
+    Long sumViewCountByAuthorId(@Param("authorId") Long authorId);
 
     @Query("SELECT p FROM Post p WHERE p.author.id = :authorId " +
             "AND (:keyword IS NULL OR :keyword = '' OR " +

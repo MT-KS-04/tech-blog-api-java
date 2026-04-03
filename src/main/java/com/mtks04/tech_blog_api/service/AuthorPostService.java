@@ -4,7 +4,9 @@ import com.mtks04.tech_blog_api.entity.Category;
 import com.mtks04.tech_blog_api.entity.Post;
 import com.mtks04.tech_blog_api.entity.User;
 import com.mtks04.tech_blog_api.repository.CategoryRepository;
+import com.mtks04.tech_blog_api.repository.CommentRepository;
 import com.mtks04.tech_blog_api.repository.PostRepository;
+import com.mtks04.tech_blog_api.repository.PostLikeRepository;
 import com.mtks04.tech_blog_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.text.Normalizer;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Service
@@ -24,6 +29,8 @@ public class AuthorPostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
 
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
@@ -57,6 +64,47 @@ public class AuthorPostService {
             return postRepository.findByAuthorId(author.getId(), pageable);
         }
         return postRepository.searchByAuthorIdAndKeyword(author.getId(), keyword.trim(), pageable);
+    }
+
+    public long countTotalPostsByAuthor(String username) {
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Author not found"));
+        return postRepository.countByAuthorId(author.getId());
+    }
+
+    public long sumTotalViewsByAuthor(String username) {
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Author not found"));
+        Long totalViews = postRepository.sumViewCountByAuthorId(author.getId());
+        return totalViews == null ? 0L : totalViews;
+    }
+
+    public long countTotalLikesByAuthor(String username) {
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Author not found"));
+        return postLikeRepository.countByPostAuthorId(author.getId());
+    }
+
+    public long countTotalCommentsByAuthor(String username) {
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Author not found"));
+        return commentRepository.countByPostAuthorId(author.getId());
+    }
+
+    public Map<Long, Long> getLikeCountsByPost(List<Post> posts) {
+        Map<Long, Long> counts = new HashMap<>();
+        for (Post post : posts) {
+            counts.put(post.getId(), postLikeRepository.countByPostId(post.getId()));
+        }
+        return counts;
+    }
+
+    public Map<Long, Long> getCommentCountsByPost(List<Post> posts) {
+        Map<Long, Long> counts = new HashMap<>();
+        for (Post post : posts) {
+            counts.put(post.getId(), commentRepository.countByPostId(post.getId()));
+        }
+        return counts;
     }
 
     @Transactional

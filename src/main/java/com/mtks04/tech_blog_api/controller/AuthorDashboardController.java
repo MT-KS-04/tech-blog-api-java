@@ -20,6 +20,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -44,14 +46,30 @@ public class AuthorDashboardController {
                 keyword,
                 PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
         );
+        List<Post> posts = postsPage.getContent();
+        Map<Long, Long> postLikeCounts = authorPostService.getLikeCountsByPost(posts);
+        Map<Long, Long> postCommentCounts = authorPostService.getCommentCountsByPost(posts);
         
         model.addAttribute("postsPage", postsPage);
-        model.addAttribute("posts", postsPage.getContent());
+        model.addAttribute("posts", posts);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("postLikeCounts", postLikeCounts);
+        model.addAttribute("postCommentCounts", postCommentCounts);
         
-        // Optional stats (simplified for UI)
-        long totalPosts = postsPage.getTotalElements();
+        long totalPosts = authorPostService.countTotalPostsByAuthor(username);
+        long totalViews = authorPostService.sumTotalViewsByAuthor(username);
+        long totalLikes = authorPostService.countTotalLikesByAuthor(username);
+        long totalComments = authorPostService.countTotalCommentsByAuthor(username);
+        String totalViewsFormatted = formatCompact(totalViews, "K", "M");
+        String totalLikesFormatted = formatCompact(totalLikes, "K", "M");
+        String totalCommentsFormatted = formatCompact(totalComments, "K", "M");
         model.addAttribute("totalPosts", totalPosts);
+        model.addAttribute("totalViews", totalViews);
+        model.addAttribute("totalLikes", totalLikes);
+        model.addAttribute("totalComments", totalComments);
+        model.addAttribute("totalViewsFormatted", totalViewsFormatted);
+        model.addAttribute("totalLikesFormatted", totalLikesFormatted);
+        model.addAttribute("totalCommentsFormatted", totalCommentsFormatted);
         
         return "author/dashboard";
     }
@@ -165,5 +183,29 @@ public class AuthorDashboardController {
         Files.copy(coverImage.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
         return "/uploads/" + filename;
+    }
+
+    /**
+     * Format big numbers like "12.4K" for UI.
+     * Rule: abbreviate for views/likes/comments only when >= 10,000.
+     */
+    private String formatCompact(long value, String kSuffix, String mSuffix) {
+        if (value >= 1_000_000) {
+            double v = value / 1_000_000.0;
+            return trimTrailingZero(String.format(java.util.Locale.ENGLISH, "%.1f", v)) + mSuffix;
+        }
+        if (value >= 10_000) {
+            double v = value / 1_000.0;
+            return trimTrailingZero(String.format(java.util.Locale.ENGLISH, "%.1f", v)) + kSuffix;
+        }
+        return String.valueOf(value);
+    }
+
+    private String trimTrailingZero(String s) {
+        if (s == null) return "";
+        if (s.contains(".")) {
+            s = s.replaceAll("0+$", "").replaceAll("\\.$", "");
+        }
+        return s;
     }
 }
