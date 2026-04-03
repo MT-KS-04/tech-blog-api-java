@@ -29,7 +29,7 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/author/**").hasRole("EDITOR")
                         .anyRequest().authenticated()

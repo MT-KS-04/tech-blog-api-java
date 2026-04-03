@@ -332,7 +332,7 @@
 
     <main class="page">
         <div class="container">
-            <form th:action="@{/author/create-post}" method="post">
+            <form th:action="@{/author/create-post}" method="post" enctype="multipart/form-data">
                 <div class="page-header">
                     <div class="page-title">
                         <a th:href="@{/author/dashboard}" class="back-btn" title="Quay lại">
@@ -378,13 +378,15 @@
                     <div class="sidebar">
                         <div class="card">
                             <h3 class="card-title">Ảnh bìa</h3>
-                            <div class="image-upload-box">
-                                <div class="upload-icon">
+                            <div class="image-upload-box" id="coverPreviewBox">
+                                <div class="upload-icon" id="coverPreviewPlaceholderIcon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                                 </div>
-                                <div class="upload-text">Chưa có ảnh bìa</div>
+                                <div class="upload-text" id="coverPreviewPlaceholderText">Chưa có ảnh bìa</div>
+                                <img id="coverPreviewImage" style="display:none; max-width: 100%; border-radius: 8px;" alt="Cover preview">
                             </div>
-                            <input type="text" name="coverUrl" class="form-control" placeholder="URL ảnh bìa...">
+                            <input type="file" id="coverImageInput" name="coverImage" class="form-control" accept="image/*" style="margin-bottom: 10px;">
+                            <input type="text" id="coverUrlInput" name="coverUrl" class="form-control" placeholder="URL ảnh bìa...">
                         </div>
 
                         <div class="card">
@@ -399,5 +401,58 @@
             </form>
         </div>
     </main>
+    <script>
+        (function () {
+            const fileInput = document.getElementById('coverImageInput');
+            const urlInput = document.getElementById('coverUrlInput');
+            const previewImage = document.getElementById('coverPreviewImage');
+            const placeholderIcon = document.getElementById('coverPreviewPlaceholderIcon');
+            const placeholderText = document.getElementById('coverPreviewPlaceholderText');
+            let currentObjectUrl = null;
+
+            function showPlaceholder() {
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                    currentObjectUrl = null;
+                }
+                previewImage.style.display = 'none';
+                previewImage.removeAttribute('src');
+                placeholderIcon.style.display = 'flex';
+                placeholderText.style.display = 'block';
+            }
+
+            function showImage(src) {
+                previewImage.src = src;
+                previewImage.style.display = 'block';
+                placeholderIcon.style.display = 'none';
+                placeholderText.style.display = 'none';
+            }
+
+            fileInput.addEventListener('change', function () {
+                const file = fileInput.files && fileInput.files[0];
+                if (!file) {
+                    showPlaceholder();
+                    return;
+                }
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                }
+                currentObjectUrl = URL.createObjectURL(file);
+                showImage(currentObjectUrl);
+            });
+
+            urlInput.addEventListener('input', function () {
+                if (fileInput.files && fileInput.files.length > 0) {
+                    return;
+                }
+                const value = urlInput.value.trim();
+                if (!value) {
+                    showPlaceholder();
+                    return;
+                }
+                showImage(value);
+            });
+        })();
+    </script>
 </body>
 </html>
