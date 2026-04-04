@@ -46,4 +46,18 @@ public class PostLikeService {
             postLikeRepository.save(newLike);
         }
     }
+
+    @Transactional
+    public void toggleLikeByUsername(Long postId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+        toggleLike(postId, user.getId());
+    }
+
+    public boolean isLikedByUser(Long postId, Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        return postLikeRepository.existsByPost_IdAndUser_Id(postId, userId);
+    }
 }

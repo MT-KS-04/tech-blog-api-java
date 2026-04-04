@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="commentNodes(nodes)">
+    <div th:each="c : ${nodes}" th:id="'comment-' + ${c.id}" class="comment-node">
+        <div class="comment-node-head">
+            <div class="comment-node-avatar" aria-hidden="true"
+                 th:text="${#strings.substring(c.authorDisplayName,0,1).toUpperCase()}">A</div>
+            <div class="comment-node-main">
+                <div class="comment-node-meta">
+                    <strong th:text="${c.authorDisplayName}">Name</strong>
+                    <span th:text="${#temporals.format(c.createdAt, 'd MMM yyyy')}">1 Jan 2026</span>
+                </div>
+                <div class="comment-node-body" th:text="${c.content}">Text</div>
+                <div class="comment-node-actions">
+                    <th:block th:if="${currentUser != null}">
+                        <form th:action="@{/post/{slug}/comment/{id}/like(slug=${post.slug},id=${c.id})}" method="post" style="margin:0;display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="comment-action-btn" th:classappend="${c.likedByCurrentUser} ? ' is-active' : ''">
+                                <svg class="icon-heart-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                                <span th:text="${c.likeCount > 0 ? c.likeCount : 'Thích'}">Thích</span>
+                            </button>
+                        </form>
+                    </th:block>
+                    <th:block th:if="${currentUser == null}">
+                        <a th:href="@{/login}" class="comment-action-btn">
+                            <svg class="icon-heart-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                            <span th:text="${c.likeCount > 0 ? c.likeCount : 'Thích'}">0</span>
+                        </a>
+                    </th:block>
+
+                    <details class="comment-reply-details" th:if="${currentUser != null}">
+                        <summary>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+                            Trả lời
+                        </summary>
+                        <form class="comment-reply-form comment-form-box" th:action="@{/post/{slug}/comment(slug=${post.slug})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="parentId" th:value="${c.id}"/>
+                            <textarea name="content" placeholder="Phản hồi..." required maxlength="8000"></textarea>
+                            <div class="comment-form-actions">
+                                <button type="submit" class="btn btn-primary btn-sm">Gửi trả lời</button>
+                            </div>
+                        </form>
+                    </details>
+                </div>
+                <div class="comment-node-replies" th:if="${c.replies != null and !c.replies.isEmpty()}">
+                    <th:block th:replace="~{fragments/comment-thread :: commentNodes(${c.replies})}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

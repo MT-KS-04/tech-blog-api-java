@@ -12,10 +12,10 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // Lấy tất cả comment gốc (không phải reply) của một bài viết
-    List<Comment> findByPostIdAndParentIsNull(Long postId);
+    List<Comment> findByPostIdAndParentIsNullOrderByCreatedAtAsc(Long postId);
 
     // Lấy tất cả reply của một comment cha
-    List<Comment> findByParentId(Long parentId);
+    List<Comment> findByParentIdOrderByCreatedAtAsc(Long parentId);
 
     // Lấy tất cả comment của một bài viết (dùng cho Admin quản lý)
     Page<Comment> findByPostId(Long postId, Pageable pageable);
