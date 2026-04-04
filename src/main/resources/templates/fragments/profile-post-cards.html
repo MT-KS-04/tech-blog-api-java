@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div class="profile-posts-grid grid grid-2 gap-6" th:fragment="cards(posts)">
+        <article class="post-card" th:each="post : ${posts}">
+            <a th:href="@{/post/{slug}(slug=${post.slug})}" class="post-card-img"
+               th:style="${post.thumbnailUrl != null ? 'background-image:url(' + post.thumbnailUrl + ');background-size:cover;background-position:center;color:transparent;' : ''}"
+               th:text="${post.thumbnailUrl == null ? (post.category != null ? post.category.name : 'Chưa phân loại') : ''}">Danh mục</a>
+            <div class="post-card-body">
+                <div>
+                    <div class="post-card-meta">
+                        <span class="badge badge-secondary"
+                              th:text="${post.category != null ? post.category.name : 'Chưa phân loại'}">Danh mục</span>
+                        <span class="post-card-readtime text-xs text-muted">
+                            <svg class="post-card-readtime-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                            </svg>
+                            <span th:text="${(post.content != null ? post.content.length() / 1000 : 1) + ' phút đọc'}">5 phút đọc</span>
+                        </span>
+                    </div>
+                    <a th:href="@{/post/{slug}(slug=${post.slug})}">
+                        <h3 th:text="${post.title}">Tiêu đề bài viết</h3>
+                    </a>
+                    <p class="text-sm text-muted mt-2 line-clamp-2"
+                       th:if="${post.summary != null and !post.summary.isEmpty()}"
+                       th:text="${post.summary}">Tóm tắt</p>
+                </div>
+                <div class="post-card-footer">
+                    <div class="post-card-author">
+                        <div>
+                            <span class="text-xs font-medium text-fg"
+                                  th:text="${post.author != null ? post.author.username : 'Ẩn danh'}">Tác giả</span>
+                            <p class="text-xs text-muted"
+                               th:text="${post.createdAt != null ? #temporals.format(post.createdAt, 'dd/MM/yyyy') : ''}">01/01/2026</p>
+                        </div>
+                    </div>
+                    <div class="post-card-stats">
+                        <span>👁 <span th:text="${post.viewCount}">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</body>
+</html>

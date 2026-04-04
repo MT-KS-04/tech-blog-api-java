@@ -194,9 +194,17 @@
                 </div>
             </div>
 
-            <!-- Stats -->
-            <div class="post-stats-bar">
+            <!-- Stats & lưu bài -->
+            <div class="post-stats-bar" style="flex-wrap: wrap; align-items: center;">
                 <span>👁 <span th:text="${post.viewCount}">0</span> lượt xem</span>
+                <th:block th:if="${currentUser != null}">
+                    <form th:action="@{/post/{slug}/bookmark(slug=${post.slug})}" method="post" style="margin: 0;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-outline btn-sm"
+                                th:text="${postBookmarked} ? 'Bỏ lưu' : 'Lưu bài'">Lưu bài</button>
+                    </form>
+                </th:block>
+                <span th:if="${postActionError != null}" class="text-sm" style="color: var(--destructive);" th:text="${postActionError}"></span>
             </div>
 
             <!-- Back -->

@@ -53,6 +53,9 @@ public class User {
     @Builder.Default
     private boolean isActive = true;
 
+    @Column(name = "full_name", length = 120)
+    private String fullName;
+
     @Column(length = 255)
     private String bio;
 
@@ -62,9 +65,39 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    /**
+     * Dùng {@link Boolean} (không phải boolean) để các bản ghi cũ có cột NULL trong DB không gây lỗi khi đọc.
+     * Giá trị mặc định được áp sau khi load ({@link #applyNotificationDefaults()}) và khi lưu mới.
+     */
+    @Column(name = "notify_comment_reply")
+    @Builder.Default
+    private Boolean notifyCommentReply = true;
+
+    @Column(name = "notify_weekly_newsletter")
+    @Builder.Default
+    private Boolean notifyWeeklyNewsletter = true;
+
+    @Column(name = "notify_author_posts")
+    @Builder.Default
+    private Boolean notifyAuthorPosts = false;
+
+    @PostLoad
+    private void applyNotificationDefaults() {
+        if (notifyCommentReply == null) {
+            notifyCommentReply = true;
+        }
+        if (notifyWeeklyNewsletter == null) {
+            notifyWeeklyNewsletter = true;
+        }
+        if (notifyAuthorPosts == null) {
+            notifyAuthorPosts = false;
+        }
+    }
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
+        applyNotificationDefaults();
     }
 
     @PreUpdate

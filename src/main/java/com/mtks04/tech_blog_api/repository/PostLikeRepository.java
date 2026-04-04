@@ -6,10 +6,17 @@ import com.mtks04.tech_blog_api.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 @Repository
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
+
+    long countByUser_Id(Long userId);
+
+    Page<PostLike> findByUser_IdOrderByCreatedAtDesc(Long userId, Pageable pageable);
     
     /**
      * Kiểm tra xem người dùng đã thích bài viết này chưa.

@@ -2,11 +2,17 @@ package com.mtks04.tech_blog_api.controller;
 
 import com.mtks04.tech_blog_api.entity.Post;
 import com.mtks04.tech_blog_api.repository.PostRepository;
+import com.mtks04.tech_blog_api.repository.UserRepository;
+import com.mtks04.tech_blog_api.service.PostBookmarkService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -15,9 +21,12 @@ import java.util.Optional;
 public class PostController {
 
     private final PostRepository postRepository;
+    private final PostBookmarkService postBookmarkService;
+    private final UserRepository userRepository;
 
     @GetMapping("/post/{slug}")
-    public String viewPost(@PathVariable String slug, Model model) {
+    public String viewPost(@PathVariable String slug, Model model,
+                           @AuthenticationPrincipal UserDetails principal) {
         Optional<Post> optionalPost = postRepository.findBySlug(slug);
 
         if (optionalPost.isEmpty()) {
@@ -40,7 +49,33 @@ public class PostController {
 
         model.addAttribute("post", post);
         model.addAttribute("htmlContent", htmlContent);
+
+        if (principal != null) {
+            userRepository.findByUsername(principal.getUsername()).ifPresent(u ->
+                    model.addAttribute("postBookmarked", postBookmarkService.isBookmarked(post.getId(), u.getId())));
+        } else {
+            model.addAttribute("postBookmarked", false);
+        }
         return "post-detail";
+    }
+
+    @PostMapping("/post/{slug}/bookmark")
+    public String toggleBookmark(@PathVariable String slug,
+                                 @AuthenticationPrincipal UserDetails principal,
+                                 RedirectAttributes redirectAttributes) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        Post post = postRepository.findBySlug(slug).orElseThrow();
+        if (post.getStatus() != Post.Status.PUBLISHED) {
+            return "error/404";
+        }
+        try {
+            postBookmarkService.toggleBookmark(post.getId(), principal.getUsername());
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("postActionError", e.getMessage());
+        }
+        return "redirect:/post/" + slug;
     }
 
     /**

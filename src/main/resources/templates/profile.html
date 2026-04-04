@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ | TechPulse</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div th:replace="~{fragments/profile-shell :: profileHero(activeTab=${activeTab})}"></div>
+
+    <main class="container profile-page">
+        <div th:if="${profileSuccess}" class="profile-alert profile-alert-success" th:text="${profileSuccess}"></div>
+        <div th:if="${profileError}" class="profile-alert profile-alert-error" th:text="${profileError}"></div>
+
+        <div class="profile-layout">
+            <div>
+                <div class="profile-card">
+                    <h2 class="profile-card-title">Thông tin cá nhân</h2>
+                    <form class="profile-form" th:action="@{/profile}" th:object="${profileForm}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <label class="label" for="fullName">Họ và tên</label>
+                        <input id="fullName" type="text" class="input" th:field="*{fullName}" placeholder="Hiển thị trên hồ sơ" autocomplete="name"/>
+                        <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" style="color:var(--destructive);font-size:0.8125rem;margin-top:-0.75rem;margin-bottom:0.75rem;"></p>
+
+                        <label class="label" for="email">Email</label>
+                        <input id="email" type="email" class="input" th:field="*{email}" required autocomplete="email"/>
+                        <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:var(--destructive);font-size:0.8125rem;margin-top:-0.75rem;margin-bottom:0.75rem;"></p>
+
+                        <label class="label" for="bio">Giới thiệu</label>
+                        <textarea id="bio" class="input" th:field="*{bio}" placeholder="Một vài dòng về bạn…"></textarea>
+                        <p th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}" style="color:var(--destructive);font-size:0.8125rem;margin-top:-0.75rem;margin-bottom:0.75rem;"></p>
+
+                        <p class="text-sm text-muted" style="margin-bottom:1rem;">Tên đăng nhập: <strong th:text="${profileUser.username}">user</strong></p>
+
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </form>
+                </div>
+            </div>
+            <div th:replace="~{fragments/profile-shell :: profileStats}"></div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

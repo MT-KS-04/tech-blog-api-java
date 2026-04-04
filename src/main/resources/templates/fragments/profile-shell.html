@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <section class="profile-hero" th:fragment="profileHero(activeTab)">
+        <div class="container profile-hero-inner">
+            <div class="profile-hero-user">
+                <div class="profile-hero-avatar" th:text="${avatarInitials}">NA</div>
+                <div>
+                    <h1 class="profile-hero-name" th:text="${displayName}">Tên</h1>
+                    <p class="profile-hero-meta" th:text="${memberSinceLabel}">Thành viên từ …</p>
+                </div>
+            </div>
+            <div class="profile-tabs-shell">
+            <nav class="profile-tabs" aria-label="Hồ sơ">
+                <a th:href="@{/profile}"
+                   class="profile-tab"
+                   th:classappend="${activeTab == 'profile'} ? ' active' : ''">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Hồ sơ
+                </a>
+                <a th:href="@{/profile/saved}"
+                   class="profile-tab"
+                   th:classappend="${activeTab == 'saved'} ? ' active' : ''">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    Đã lưu
+                </a>
+                <a th:href="@{/profile/liked}"
+                   class="profile-tab"
+                   th:classappend="${activeTab == 'liked'} ? ' active' : ''">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Đã thích
+                </a>
+                <a th:href="@{/profile/settings}"
+                   class="profile-tab"
+                   th:classappend="${activeTab == 'settings'} ? ' active' : ''">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    Cài đặt
+                </a>
+            </nav>
+            </div>
+        </div>
+    </section>
+
+    <aside class="profile-card profile-stats-card" th:fragment="profileStats">
+        <div class="profile-stat-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <span class="profile-stat-label">Bài đã lưu</span>
+            <span class="profile-stat-badge" th:text="${countSaved}">0</span>
+        </div>
+        <div class="profile-stat-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="profile-stat-label">Đã thích</span>
+            <span class="profile-stat-badge" th:text="${countLiked}">0</span>
+        </div>
+        <div class="profile-stat-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="profile-stat-label">Bình luận</span>
+            <span class="profile-stat-badge" th:text="${countComments}">0</span>
+        </div>
+    </aside>
+</body>
+</html>
