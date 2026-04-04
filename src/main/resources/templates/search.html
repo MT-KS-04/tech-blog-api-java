@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tìm kiếm bài viết trên TechPulse">
+    <title th:text="${query != null and !query.isEmpty()} ? 'Kết quả tìm kiếm: ' + ${query} + ' | TechPulse' : 'Tìm kiếm | TechPulse'">Tìm kiếm | TechPulse</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .search-hero {
+            background: linear-gradient(135deg, hsla(160, 45%, 40%, 0.08), var(--secondary));
+            padding: 3rem 0 2.5rem;
+        }
+        .search-hero h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-form-large {
+            position: relative;
+            max-width: 600px;
+        }
+        .search-form-large input {
+            width: 100%;
+            padding: 0.875rem 1.25rem 0.875rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: 9999px;
+            font-size: 1rem;
+            font-family: var(--font-body);
+            background: var(--card);
+            color: var(--fg);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-form-large input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px hsla(160, 45%, 40%, 0.15);
+        }
+        .search-form-large svg {
+            position: absolute;
+            left: 1.125rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-fg);
+            pointer-events: none;
+        }
+        .search-form-large button {
+            position: absolute;
+            right: 0.375rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .search-results-info {
+            padding: 1rem 0;
+            font-size: 0.875rem;
+            color: var(--muted-fg);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        .search-results-info strong {
+            color: var(--fg);
+        }
+        .search-empty {
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+        .search-empty h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .search-empty p {
+            color: var(--muted-fg);
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 2rem 0;
+        }
+        .pagination a, .pagination span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.25rem;
+            height: 2.25rem;
+            padding: 0 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination a {
+            border: 1px solid var(--border);
+            color: var(--fg);
+        }
+        .pagination a:hover {
+            background: var(--secondary);
+        }
+        .pagination .active {
+            background: var(--primary);
+            color: var(--primary-fg);
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main>
+        <!-- Search Hero -->
+        <section class="search-hero">
+            <div class="container">
+                <h1>Tìm kiếm bài viết</h1>
+                <form class="search-form-large" th:action="@{/search}" method="get">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" name="q" th:value="${query}" placeholder="Nhập từ khóa... (ví dụ: Ram, AI, GPU)" autofocus>
+                    <button type="submit" class="btn btn-primary" style="border-radius: 9999px;">Tìm kiếm</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="container" style="padding-bottom: 3rem;">
+
+            <!-- Has query and results -->
+            <div th:if="${results != null and results.totalElements > 0}">
+                <div class="search-results-info">
+                    Tìm thấy <strong th:text="${results.totalElements}">0</strong> kết quả cho
+                    "<strong th:text="${query}">keyword</strong>"
+                </div>
+
+                <div class="grid grid-3 gap-6">
+                    <article class="post-card" th:each="post : ${results.content}">
+                        <a th:href="@{/post/{slug}(slug=${post.slug})}" class="post-card-img"
+                           th:style="${post.thumbnailUrl != null ? 'background-image:url(' + post.thumbnailUrl + ');background-size:cover;background-position:center;color:transparent;' : ''}"
+                           th:text="${post.thumbnailUrl == null ? (post.category != null ? post.category.name : 'Uncategorized') : ''}">Category</a>
+                        <div class="post-card-body">
+                            <div>
+                                <div class="post-card-meta">
+                                    <span class="badge badge-secondary"
+                                          th:text="${post.category != null ? post.category.name : 'Uncategorized'}">Category</span>
+                                    <span class="text-xs text-muted"
+                                          th:text="${(post.content != null ? post.content.length() / 1000 : 1) + ' min read'}">5 min read</span>
+                                </div>
+                                <a th:href="@{/post/{slug}(slug=${post.slug})}">
+                                    <h3 th:text="${post.title}">Post Title</h3>
+                                </a>
+                                <p class="text-sm text-muted mt-2 line-clamp-2"
+                                   th:text="${post.summary}">Post summary goes here.</p>
+                            </div>
+                            <div class="post-card-footer">
+                                <div class="post-card-author">
+                                    <div>
+                                        <span class="text-xs font-medium text-fg"
+                                              th:text="${post.author != null ? post.author.username : 'Unknown'}">Author</span>
+                                        <p class="text-xs text-muted"
+                                           th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}">01 Jan 2026</p>
+                                    </div>
+                                </div>
+                                <div class="post-card-stats">
+                                    <span>👁 <span th:text="${post.viewCount}">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" th:if="${results.totalPages > 1}">
+                    <a th:if="${results.number > 0}"
+                       th:href="@{/search(q=${query}, page=${results.number - 1})}">← Trước</a>
+
+                    <th:block th:each="i : ${#numbers.sequence(0, results.totalPages - 1)}">
+                        <span th:if="${i == results.number}" class="active" th:text="${i + 1}">1</span>
+                        <a th:if="${i != results.number}"
+                           th:href="@{/search(q=${query}, page=${i})}"
+                           th:text="${i + 1}">1</a>
+                    </th:block>
+
+                    <a th:if="${results.number < results.totalPages - 1}"
+                       th:href="@{/search(q=${query}, page=${results.number + 1})}">Sau →</a>
+                </div>
+            </div>
+
+            <!-- Has query but no results -->
+            <div class="search-empty" th:if="${results != null and results.totalElements == 0}">
+                <h2>Không tìm thấy kết quả</h2>
+                <p>Không có bài viết nào phù hợp với "<strong th:text="${query}">keyword</strong>"</p>
+                <p class="mt-4 text-sm text-muted">Hãy thử tìm với từ khóa khác hoặc ngắn hơn.</p>
+                <a th:href="@{/}" class="btn btn-outline mt-6">← Quay lại trang chủ</a>
+            </div>
+
+            <!-- No query yet -->
+            <div class="search-empty" th:if="${results == null}">
+                <h2>Bắt đầu tìm kiếm</h2>
+                <p>Nhập từ khóa vào ô tìm kiếm phía trên để tìm bài viết.</p>
+            </div>
+
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>

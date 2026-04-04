@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" th:content="${post.summary}">
+    <title th:text="${post.title + ' | TechPulse'}">Post | TechPulse</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .post-detail-hero {
+            position: relative;
+            width: 100%;
+            min-height: 340px;
+            display: flex;
+            align-items: flex-end;
+            background: linear-gradient(135deg, hsla(160, 45%, 40%, 0.12), var(--muted), var(--secondary));
+            overflow: hidden;
+        }
+        .post-detail-hero img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .post-detail-hero .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, hsla(220,20%,12%,0.7), transparent 60%);
+        }
+        .post-detail-hero .hero-text {
+            position: relative;
+            z-index: 1;
+            padding: 2.5rem 0;
+            color: white;
+        }
+        .post-detail-hero .hero-text h1 {
+            font-size: 2.25rem;
+            line-height: 1.2;
+            color: white;
+        }
+        .post-detail-hero .hero-text .meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: hsla(0,0%,100%,0.8);
+        }
+        .post-content-wrap {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 1rem 4rem;
+        }
+        .post-content-wrap .post-body {
+            font-size: 1.0625rem;
+            line-height: 1.85;
+            color: var(--fg);
+        }
+        .post-content-wrap .post-body p {
+            margin-bottom: 1.25rem;
+        }
+        .post-content-wrap .post-body h2 {
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        .post-content-wrap .post-body h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .post-content-wrap .post-body img {
+            border-radius: var(--radius);
+            margin: 1.5rem 0;
+        }
+        .post-content-wrap .post-body ul,
+        .post-content-wrap .post-body ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .post-content-wrap .post-body blockquote {
+            border-left: 3px solid var(--primary);
+            padding: 0.75rem 1.25rem;
+            margin: 1.5rem 0;
+            background: var(--secondary);
+            border-radius: 0 var(--radius) var(--radius) 0;
+            color: var(--muted-fg);
+        }
+        .post-content-wrap .post-body pre {
+            background: hsl(220, 20%, 12%);
+            color: hsl(160, 40%, 70%);
+            padding: 1.25rem;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-size: 0.875rem;
+        }
+        .post-content-wrap .post-body code {
+            background: var(--secondary);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.875em;
+        }
+        .post-content-wrap .post-body pre code {
+            background: none;
+            padding: 0;
+        }
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .post-author-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .post-author-box .author-info span {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .post-author-box .author-info p {
+            font-size: 0.875rem;
+            color: var(--muted-fg);
+        }
+        .post-stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.875rem;
+            color: var(--muted-fg);
+        }
+        @media(max-width: 767px) {
+            .post-detail-hero .hero-text h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main>
+        <!-- Hero / Thumbnail -->
+        <section class="post-detail-hero">
+            <img th:if="${post.thumbnailUrl != null}" th:src="${post.thumbnailUrl}" th:alt="${post.title}">
+            <div class="overlay" th:if="${post.thumbnailUrl != null}"></div>
+            <div class="container hero-text">
+                <div>
+                    <span class="badge badge-primary"
+                          th:text="${post.category != null ? post.category.name : 'Uncategorized'}">Category</span>
+                </div>
+                <h1 th:text="${post.title}">Post Title</h1>
+                <div class="meta">
+                    <span th:text="${post.author != null ? post.author.username : 'Unknown'}">Author</span>
+                    <span>•</span>
+                    <span th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}">01 Jan 2026</span>
+                    <span>•</span>
+                    <span th:text="${(post.content != null ? post.content.length() / 1000 : 1) + ' min read'}">5 min read</span>
+                    <span>•</span>
+                    <span>👁 <span th:text="${post.viewCount}">0</span></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content -->
+        <div class="post-content-wrap">
+            <div class="post-body" th:utext="${htmlContent}">
+                Post content goes here...
+            </div>
+
+            <!-- Tags -->
+            <div class="post-tags" th:if="${post.tags != null and not post.tags.isEmpty()}">
+                <span class="badge badge-secondary" th:each="tag : ${post.tags}" th:text="${tag.name}">Tag</span>
+            </div>
+
+            <!-- Author Box -->
+            <div class="post-author-box">
+                <div class="author-info">
+                    <span th:text="${post.author != null ? post.author.username : 'Unknown'}">Author</span>
+                    <p>Tác giả bài viết</p>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="post-stats-bar">
+                <span>👁 <span th:text="${post.viewCount}">0</span> lượt xem</span>
+            </div>
+
+            <!-- Back -->
+            <div style="margin-top: 2rem;">
+                <a th:href="@{/}" class="btn btn-outline">← Quay lại trang chủ</a>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>
