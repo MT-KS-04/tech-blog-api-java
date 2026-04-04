@@ -20,6 +20,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // Lấy tất cả comment của một bài viết (dùng cho Admin quản lý)
     Page<Comment> findByPostId(Long postId, Pageable pageable);
 
+    // Xóa tất cả reply của một comment cha
+    void deleteByParentId(Long parentId);
+
     // Đếm số comment của một bài viết
     long countByPostId(Long postId);
 

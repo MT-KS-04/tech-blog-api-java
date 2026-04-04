@@ -43,6 +43,19 @@ public class Comment {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Transient
+    private long likesCount;
+
+    @Transient
+    private boolean likedByCurrentUser;
+
+    @Transient
+    private boolean canDelete;
+
+    @Transient
+    @Builder.Default
+    private java.util.List<Comment> replies = new java.util.ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
