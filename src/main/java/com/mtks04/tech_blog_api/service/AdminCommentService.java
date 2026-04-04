@@ -34,7 +34,7 @@ public class AdminCommentService {
     }
     
     private void deleteCommentRecursive(Long id) {
-        List<Comment> replies = commentRepository.findByParentId(id);
+        List<Comment> replies = commentRepository.findByParentIdOrderByCreatedAtAsc(id);
         if (replies != null && !replies.isEmpty()) {
             for (Comment reply : replies) {
                 deleteCommentRecursive(reply.getId());

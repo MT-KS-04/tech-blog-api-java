@@ -22,6 +22,8 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
      * Kiểm tra xem người dùng đã thích bài viết này chưa.
      */
     boolean existsByPostAndUser(Post post, User user);
+
+    boolean existsByPost_IdAndUser_Id(Long postId, Long userId);
     
     /**
      * Tìm lượt thích của người dùng cho một bài viết cụ thể.

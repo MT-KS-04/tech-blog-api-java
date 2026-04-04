@@ -1739,3 +1739,319 @@ tbody tr:hover {
     line-height: 1.6;
     margin: 0;
 }
+
+/* ===== Post detail: interaction bar & comments (TechPulse-style) ===== */
+.post-detail-summary {
+    font-size: 1.125rem;
+    color: var(--muted-fg);
+    line-height: 1.65;
+    margin: 0 0 1.75rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.post-author-strip {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto 0.5rem;
+}
+
+.post-author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.post-author-strip .post-author-text .post-author-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--fg);
+    display: block;
+}
+
+.post-author-strip .post-author-text .post-author-bio {
+    font-size: 0.875rem;
+    color: var(--muted-fg);
+    margin-top: 0.25rem;
+    line-height: 1.5;
+}
+
+.post-interaction-bar {
+    max-width: 800px;
+    margin: 1.25rem auto 1.75rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.post-interaction-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.post-interaction-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: hsl(220, 10%, 42%);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.post-interaction-btn:hover {
+    color: var(--fg);
+}
+
+.post-interaction-btn svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.post-interaction-btn.is-active {
+    color: hsl(160, 45%, 36%);
+}
+
+.post-interaction-btn.is-active .icon-heart {
+    fill: hsl(160, 45%, 42%);
+    stroke: hsl(160, 45%, 42%);
+}
+
+.post-interaction-btn .icon-heart {
+    fill: none;
+}
+
+.comments-section {
+    max-width: 800px;
+    margin: 3rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.comments-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--fg);
+    margin-bottom: 1.25rem;
+}
+
+.comments-section-title svg {
+    width: 22px;
+    height: 22px;
+    color: var(--muted-fg);
+}
+
+.comment-form-box {
+    margin-bottom: 2rem;
+}
+
+.comment-form-box textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    resize: vertical;
+    background: var(--card);
+    color: var(--fg);
+}
+
+.comment-form-box textarea:focus {
+    outline: none;
+    border-color: hsla(160, 45%, 40%, 0.45);
+    box-shadow: 0 0 0 3px hsla(160, 45%, 40%, 0.12);
+}
+
+.comment-form-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.comment-node {
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.comment-node:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.comment-node-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.comment-node-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-node-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.comment-node-meta {
+    font-size: 0.8125rem;
+    color: var(--muted-fg);
+    margin-bottom: 0.35rem;
+}
+
+.comment-node-meta strong {
+    color: var(--fg);
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.comment-node-body {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--fg);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.comment-node-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
+}
+
+.comment-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: hsl(220, 10%, 42%);
+    font-family: var(--font-body);
+}
+
+.comment-action-btn:hover {
+    color: var(--fg);
+}
+
+.comment-action-btn.is-active {
+    color: hsl(160, 45%, 36%);
+}
+
+.comment-action-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.comment-action-btn.is-active .icon-heart-sm {
+    fill: hsl(160, 45%, 42%);
+    stroke: hsl(160, 45%, 42%);
+}
+
+.comment-action-btn .icon-heart-sm {
+    fill: none;
+}
+
+.comment-node-replies {
+    margin-top: 1rem;
+    margin-left: 0;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--border);
+}
+
+.comment-reply-details {
+    margin-top: 0.5rem;
+}
+
+.comment-reply-details summary {
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: hsl(220, 10%, 42%);
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.comment-reply-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.comment-reply-details summary:hover {
+    color: var(--fg);
+}
+
+.comment-reply-form {
+    margin-top: 0.75rem;
+}
+
+.comment-reply-form textarea {
+    min-height: 80px;
+}
+
+.share-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: var(--fg);
+    color: var(--card);
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.share-toast.is-visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
