@@ -38,93 +38,96 @@
             </div>
         </section>
 
-        <section class="container py-12">
+        <!-- Featured Posts -->
+        <section class="container py-12" th:if="${not #lists.isEmpty(featuredPosts)}">
             <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-bold">Featured</h2>
-                <a href="#" class="text-sm text-primary font-medium">View all →</a>
+                <a th:href="@{/blog}" class="text-sm text-primary font-medium">View all →</a>
             </div>
             <div class="grid grid-2 gap-6 mt-6">
-                <article class="post-card featured">
-                    <a href="#" class="post-card-img">AI & ML</a>
+                <article class="post-card featured" th:each="post : ${featuredPosts}">
+                    <a th:href="@{/post/{slug}(slug=${post.slug})}" class="post-card-img"
+                       th:style="${post.thumbnailUrl != null ? 'background-image:url(' + post.thumbnailUrl + ');background-size:cover;background-position:center;color:transparent;' : ''}"
+                       th:text="${post.thumbnailUrl == null ? (post.category != null ? post.category.name : 'Uncategorized') : ''}">Category</a>
                     <div class="post-card-body">
                         <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">AI & ML</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>The Rise of AI Agents: How Autonomous Systems Are Reshaping Software Development
-                                </h3>
+                            <div class="post-card-meta">
+                                <span class="badge badge-secondary"
+                                      th:text="${post.category != null ? post.category.name : 'Uncategorized'}">Category</span>
+                                <span class="text-xs text-muted"
+                                      th:text="${(post.content != null ? post.content.length() / 1000 : 1) + ' min read'}">5 min read</span>
+                            </div>
+                            <a th:href="@{/post/{slug}(slug=${post.slug})}">
+                                <h3 th:text="${post.title}">Post Title</h3>
                             </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">AI agents are no longer science fiction.
-                                Discover how autonomous AI is transforming developer workflow.</p>
+                            <p class="text-sm text-muted mt-2 line-clamp-2"
+                               th:text="${post.summary}">Post summary goes here.</p>
                         </div>
-                    </div>
-                </article>
-                <article class="post-card featured">
-                    <a href="#" class="post-card-img">Web Dev</a>
-                    <div class="post-card-body">
-                        <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">Web Dev</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Building Blazing-Fast Web Apps with React Server Components</h3>
-                            </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">React Server Components have matured. Learn
-                                to leverage them for faster load times.</p>
+                        <div class="post-card-footer">
+                            <div class="post-card-author">
+                                <div>
+                                    <span class="text-xs font-medium text-fg"
+                                          th:text="${post.author != null ? post.author.username : 'Unknown'}">Author</span>
+                                    <p class="text-xs text-muted"
+                                       th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}">01 Jan 2026</p>
+                                </div>
+                            </div>
+                            <div class="post-card-stats">
+                                <span>👁 <span th:text="${post.viewCount}">0</span></span>
+                            </div>
                         </div>
                     </div>
                 </article>
             </div>
         </section>
 
-        <section class="container" style="padding-bottom:4rem">
+        <!-- Latest Articles -->
+        <section class="container" style="padding-bottom:4rem" th:if="${not #lists.isEmpty(latestPosts)}">
             <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-bold">Latest Articles</h2>
-                <a href="#" class="text-sm text-primary font-medium">View all →</a>
+                <a th:href="@{/blog}" class="text-sm text-primary font-medium">View all →</a>
             </div>
             <div class="grid grid-3 gap-6 mt-6">
-                <article class="post-card">
-                    <a href="#" class="post-card-img">Cybersecurity</a>
+                <article class="post-card" th:each="post : ${latestPosts}">
+                    <a th:href="@{/post/{slug}(slug=${post.slug})}" class="post-card-img"
+                       th:style="${post.thumbnailUrl != null ? 'background-image:url(' + post.thumbnailUrl + ');background-size:cover;background-position:center;color:transparent;' : ''}"
+                       th:text="${post.thumbnailUrl == null ? (post.category != null ? post.category.name : 'Uncategorized') : ''}">Category</a>
                     <div class="post-card-body">
                         <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">Cybersecurity</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Zero-Trust Architecture: A Practical Guide for Modern Teams</h3>
+                            <div class="post-card-meta">
+                                <span class="badge badge-secondary"
+                                      th:text="${post.category != null ? post.category.name : 'Uncategorized'}">Category</span>
+                                <span class="text-xs text-muted"
+                                      th:text="${(post.content != null ? post.content.length() / 1000 : 1) + ' min read'}">5 min read</span>
+                            </div>
+                            <a th:href="@{/post/{slug}(slug=${post.slug})}">
+                                <h3 th:text="${post.title}">Post Title</h3>
                             </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">Zero-trust isn't just a buzzword. Here's a
-                                step-by-step guide to implementing it.</p>
+                            <p class="text-sm text-muted mt-2 line-clamp-2"
+                               th:text="${post.summary}">Post summary goes here.</p>
                         </div>
-                    </div>
-                </article>
-                <article class="post-card">
-                    <a href="#" class="post-card-img">DevOps</a>
-                    <div class="post-card-body">
-                        <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">DevOps</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Kubernetes in 2026: What's New and What Matters</h3>
-                            </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">Kubernetes has evolved significantly.
-                                Explore new features and best practices.</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="post-card">
-                    <a href="#" class="post-card-img">Mobile</a>
-                    <div class="post-card-body">
-                        <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">Mobile</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Flutter vs React Native in 2026: The Definitive Comparison</h3>
-                            </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">We compare the two leading cross-platform
-                                frameworks across performance and DX.</p>
+                        <div class="post-card-footer">
+                            <div class="post-card-author">
+                                <div>
+                                    <span class="text-xs font-medium text-fg"
+                                          th:text="${post.author != null ? post.author.username : 'Unknown'}">Author</span>
+                                    <p class="text-xs text-muted"
+                                       th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}">01 Jan 2026</p>
+                                </div>
+                            </div>
+                            <div class="post-card-stats">
+                                <span>👁 <span th:text="${post.viewCount}">0</span></span>
+                            </div>
                         </div>
                     </div>
                 </article>
             </div>
+        </section>
+
+        <!-- Empty State: khi chưa có bài viết nào -->
+        <section class="container py-16 text-center" th:if="${#lists.isEmpty(featuredPosts) and #lists.isEmpty(latestPosts)}">
+            <h2 class="text-2xl font-bold">No articles yet</h2>
+            <p class="text-muted mt-2">Published articles will appear here. Stay tuned!</p>
         </section>
 
     </main>

@@ -19,11 +19,6 @@ public class PlaceholderController {
         return "error/404";
     }
 
-    @GetMapping({ "/post/**" })
-    public String publicPostDetail() {
-        return "error/404";
-    }
-
     @GetMapping({ "/author/**" })
     public String publicAuthorProfile() {
         return "error/404";
@@ -31,11 +26,6 @@ public class PlaceholderController {
 
     @GetMapping({ "/user/profile", "/user/profile/**" })
     public String userProfile() {
-        return "error/404";
-    }
-
-    @GetMapping({ "/search", "/search/**" })
-    public String searchPlaceholder() {
         return "error/404";
     }
 }

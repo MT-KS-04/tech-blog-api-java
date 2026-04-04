@@ -62,4 +62,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             @Param("status") Post.Status status,
             Pageable pageable
     );
+    // Tìm kiếm công khai – chỉ bài PUBLISHED, theo keyword trong title/summary
+    @Query("SELECT p FROM Post p WHERE p.status = 'PUBLISHED' AND " +
+            "(LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(COALESCE(p.summary, '')) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Post> searchPublished(@Param("keyword") String keyword, Pageable pageable);
 }
