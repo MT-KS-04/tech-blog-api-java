@@ -30,9 +30,4 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
      * Đếm tổng lượt thích trên tất cả bài viết của một tác giả.
      */
     long countByPostAuthorId(Long authorId);
-
-    /**
-     * Đếm tổng số bài viết mà một người dùng đã thích.
-     */
-    long countByUserId(Long userId);
 }

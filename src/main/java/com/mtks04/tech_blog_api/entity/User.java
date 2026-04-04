@@ -62,19 +62,6 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Notification Preferences
-    @Column(name = "notif_comment_reply")
-    @Builder.Default
-    private Boolean notifCommentReply = true;
-
-    @Column(name = "notif_weekly_newsletter")
-    @Builder.Default
-    private Boolean notifWeeklyNewsletter = true;
-
-    @Column(name = "notif_new_post")
-    @Builder.Default
-    private Boolean notifNewPost = false;
-
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
