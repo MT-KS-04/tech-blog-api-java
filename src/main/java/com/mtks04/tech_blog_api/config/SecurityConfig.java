@@ -2,6 +2,7 @@ package com.mtks04.tech_blog_api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,7 +30,8 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**", "/uploads/**", "/post/**", "/search").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/error", "/css/**", "/js/**", "/images/**", "/uploads/**", "/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/author/**").hasRole("EDITOR")
                         .anyRequest().authenticated()

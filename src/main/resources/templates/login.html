@@ -19,6 +19,9 @@
             <div th:if="${param.success}" style="color: var(--primary); margin-top: 1rem; font-size: 0.875rem;">
                 Registration successful! Please sign in.
             </div>
+            <div th:if="${param.closed}" style="color: var(--muted-fg); margin-top: 1rem; font-size: 0.875rem;">
+                Tài khoản của bạn đã được đóng. Bạn không thể đăng nhập lại với tài khoản này.
+            </div>
 
             <form class="mt-8 space-y-4" th:action="@{/login}" method="post">
                 <div class="space-y-2">
