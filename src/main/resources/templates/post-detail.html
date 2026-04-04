@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" th:content="${post.summary}">
+    <meta name="_csrf" th:content="${_csrf.token}" th:if="${_csrf != null}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" th:if="${_csrf != null}"/>
+    <title th:text="${post.title} + ' | TechPulse'">Chi tiết bài viết</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .post-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 2rem auto;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 2rem;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            color: #6c757d;
+        }
+
+        .post-meta img.avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .post-content {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .post-content h2 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .post-content p {
+            margin-bottom: 1.25rem;
+        }
+
+        .post-tags {
+            max-width: 800px;
+            margin: 2rem auto;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* ===== ACTION BAR ===== */
+        .post-action-bar {
+            max-width: 800px;
+            margin: 1.5rem auto 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            border-top: 1px solid #eaeaea;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: none;
+            background: transparent;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #555;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background-color: #f3f4f6;
+            color: #111;
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .action-btn.liked {
+            color: #e11d48;
+        }
+
+        .action-btn.liked svg {
+            fill: #e11d48;
+            stroke: #e11d48;
+        }
+
+        .action-btn.comment-active {
+            color: #111;
+            border: 1.5px solid #d1d5db;
+            background-color: transparent;
+        }
+
+        .action-btn.bookmarked svg {
+            fill: #111;
+            stroke: #111;
+        }
+        /* ===== END ACTION BAR ===== */
+
+        .comments-section {
+            max-width: 800px;
+            margin: 2.5rem auto 2rem auto;
+            border-top: 1px solid #f3f4f6;
+            padding-top: 2rem;
+        }
+
+        .comment-thread {
+            margin-bottom: 2rem;
+        }
+
+        .comment-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .comment-avatar {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary, #10b981);
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-content-area {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .comment-meta {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .comment-username {
+            font-weight: 700;
+            font-size: 15px;
+            color: #111;
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .comment-text {
+            margin: 0 0 8px 0;
+            color: #374151;
+            font-size: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .comment-like-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .comment-like-pill:hover {
+            border-color: #d1d5db;
+            background-color: #f9fafb;
+        }
+
+        .comment-like-pill.liked {
+            border-color: #10b981;
+            color: #10b981;
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .comment-like-pill svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-reply-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #6b7280;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .btn-reply-link:hover {
+            color: #111;
+        }
+
+        .reply-input-wrapper {
+            margin-top: 12px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .reply-textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+
+        .reply-textarea:focus {
+            border-color: var(--primary, #10b981);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+        }
+
+        .btn-send-reply {
+            background-color: #99cbbd;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-send-reply:hover {
+            background-color: #10b981;
+        }
+
+        .btn-cancel-reply {
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 14px;
+            margin-left: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel-reply:hover {
+            color: #111;
+        }
+
+        .replies-container {
+            margin-top: 1rem;
+            padding-left: 3rem;
+        }
+
+        .reply-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .reply-avatar {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #6366f1;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="container py-12">
+        <article>
+            <header class="post-header">
+                <div>
+                    <span class="badge badge-secondary" th:text="${post.category != null ? post.category.name : 'Chưa phân loại'}">Category</span>
+                </div>
+                <h1 class="text-4xl font-bold mt-4" th:text="${post.title}">Tiêu đề bài viết</h1>
+                
+                <div class="post-meta">
+                    <img th:src="@{${post.author != null && post.author.username == 'admin_author' ? 'https://ui-avatars.com/api/?name=Admin+Author&background=random' : (post.author != null ? 'https://ui-avatars.com/api/?name='+post.author.username+'&background=random' : 'https://ui-avatars.com/api/?name=Unknown&background=random')}}" class="avatar" alt="Author avatar">
+                    <div style="text-align: left;">
+                        <div class="font-medium" style="color: #000;" th:text="${post.author != null ? post.author.username : 'Ẩn danh'}">Tên tác giả</div>
+                        <div class="text-sm">
+                            <span th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">Thời gian</span> • 
+                            <span th:text="${post.viewCount}">0</span> lượt xem
+                        </div>
+                    </div>
+                </div>
+                
+            </header>
+        </article>
+
+        <!-- ===== ACTION BAR ===== -->
+        <div class="post-action-bar">
+            <div class="action-bar-left">
+                <!-- Like button -->
+                <button id="likeBtn" th:data-post-id="${post.id}"
+                        class="action-btn" th:classappend="${isLiked} ? 'liked' : ''">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    <span id="likeCount" th:text="${likesCount}">0</span>
+                </button>
+
+                <!-- Comment scroll button -->
+                <a href="#comment-input-area" class="action-btn comment-active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span id="totalCommentsBar" th:text="${totalComments}">0</span>
+                </a>
+            </div>
+
+            <div class="action-bar-right">
+                <!-- Bookmark button -->
+                <button id="bookmarkBtn" class="action-btn" th:classappend="${isBookmarked ? 'bookmarked' : ''}" 
+                        th:title="${isBookmarked ? 'Bỏ lưu' : 'Lưu bài viết'}"
+                        th:attr="data-post-id=${post.id}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </button>
+
+                <!-- Share button -->
+                <button id="shareBtn" class="action-btn" title="Chia sẻ">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="likeError" class="text-sm" style="display: none; color: var(--destructive, red); max-width:800px; margin: 4px auto 0 auto;"></div>
+        <!-- ===== END ACTION BAR ===== -->
+
+        <div class="post-content" style="max-width:800px; margin: 2rem auto;" th:utext="${post.content}">
+            Nội dung bài viết sẽ hiển thị ở đây.
+        </div>
+
+        <div class="post-tags" th:if="${!post.tags.isEmpty()}">
+            <span class="badge badge-secondary cursor-pointer" th:each="tag : ${post.tags}" th:text="${'#' + tag.name}">#tag</span>
+        </div>
+        <div class="post-tags" th:if="${post.tags.isEmpty()}">
+            <span class="badge badge-secondary cursor-pointer">#tech</span>
+            <span class="badge badge-secondary cursor-pointer">#blog</span>
+        </div>
+
+        <!-- ===== COMMENT SECTION ===== -->
+        <section class="comments-section" id="comment-input-area">
+            <h3 style="font-size:1.25rem; font-weight:700; display:flex; align-items:center; gap:10px; margin-bottom:1.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Bình luận (<span id="totalCommentsTitle" th:text="${totalComments}">0</span>)
+            </h3>
+
+            <!-- New comment input -->
+            <div th:if="${currentUser != null}" style="margin-bottom:2rem;">
+                <textarea id="commentInput" rows="3"
+                    style="width:100%; border:1px solid #d1d5db; border-radius:10px; padding:14px 16px; font-size:15px; font-family:inherit; resize:vertical; outline:none; transition:border-color 0.2s, box-shadow 0.2s; color:#374151; box-sizing:border-box;"
+                    placeholder="Viết bình luận của bạn..."
+                    onfocus="this.style.borderColor='var(--primary,#10b981)'; this.style.boxShadow='0 0 0 3px rgba(16,185,129,0.1)'"
+                    onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'"></textarea>
+                <div id="commentError" style="display:none; color:#ef4444; font-size:13px; margin-top:6px;"></div>
+                <div style="margin-top:10px;">
+                    <button id="submitCommentBtn" th:data-post-id="${post.id}"
+                        style="background-color:var(--primary,#10b981); color:#fff; border:none; padding:10px 22px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition:opacity 0.2s;"
+                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        Đăng bình luận
+                    </button>
+                </div>
+            </div>
+            <div th:if="${currentUser == null}" style="margin-bottom:2rem; padding:18px; background:#f9fafb; border-radius:10px; text-align:center; color:#6b7280;">
+                Vui lòng <a th:href="@{/login}" style="color:var(--primary,#10b981); font-weight:600; text-decoration:underline;">đăng nhập</a> để bình luận.
+            </div>
+
+            <!-- Comments list -->
+            <div id="commentsList">
+                <div th:if="${comments.isEmpty()}" id="noCommentsMsg" style="text-align:center; color:#9ca3af; padding:2rem 0;">
+                    Chưa có bình luận nào. Hãy là người đầu tiên!
+                </div>
+
+                <!-- Each parent comment -->
+                <div class="comment-thread" th:each="comment : ${comments}" th:id="'thread-' + ${comment.id}">
+                    <div class="comment-row" th:id="'comment-' + ${comment.id}">
+                        <!-- Avatar -->
+                        <div class="comment-avatar">
+                            <span th:text="${#strings.substring(comment.user.username, 0, 1).toUpperCase()}">U</span>
+                        </div>
+                        <!-- Content Area -->
+                        <div class="comment-content-area">
+                            <div class="comment-meta">
+                                <span class="comment-username" th:text="${comment.user.username}">User</span>
+                                <span class="comment-date" th:text="${comment.createdAt != null ? #temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm') : ''}">Date</span>
+                                <button th:if="${comment.canDelete}" class="btn-delete-comment" th:data-comment-id="${comment.id}"
+                                    style="margin-left:auto; background:none; border:none; color:#dc2626; font-size:12px; cursor:pointer; opacity:0.6; transition:opacity 0.2s;"
+                                    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'"
+                                    title="Xóa bình luận">🗑 Xóa</button>
+                            </div>
+                            <p class="comment-text" th:text="${comment.content}">Content</p>
+                            <!-- Actions -->
+                            <div class="comment-actions">
+                                <button class="comment-like-pill btn-like-comment"
+                                    th:data-comment-id="${comment.id}"
+                                    th:data-liked="${comment.isLikedByCurrentUser}"
+                                    th:classappend="${comment.isLikedByCurrentUser} ? 'liked' : ''">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                    <span class="comment-like-count" th:text="${comment.likesCount}">0</span>
+                                </button>
+                                <button class="btn-reply-link btn-reply" th:data-comment-id="${comment.id}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 17 4 12 9 7"></polyline><line x1="20" y1="12" x2="4" y2="12"></line>
+                                    </svg>
+                                    Trả lời
+                                </button>
+                            </div>
+
+                            <!-- Inline reply input -->
+                            <div class="reply-input-area" style="display:none; margin-top:12px;">
+                                <div class="reply-input-wrapper">
+                                    <textarea class="reply-textarea" rows="2" placeholder="Viết phản hồi..."></textarea>
+                                    <div style="display:flex; align-items:center;">
+                                        <button class="btn-send-reply btn-submit-reply" th:data-post-id="${post.id}" th:data-parent-id="${comment.id}">Gửi</button>
+                                        <button class="btn-cancel-reply">Hủy</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nested replies -->
+                            <div class="replies-container replies-list" th:id="'replies-' + ${comment.id}"
+                                 th:style="${comment.replies.isEmpty()} ? 'display:none' : 'display:block'">
+                                <div class="reply-item reply-row" th:each="reply : ${comment.replies}" th:id="'comment-' + ${reply.id}">
+                                    <div class="reply-avatar">
+                                        <span th:text="${#strings.substring(reply.user.username, 0, 1).toUpperCase()}">U</span>
+                                    </div>
+                                    <div class="comment-content-area">
+                                        <div class="comment-meta">
+                                            <span class="comment-username" th:text="${reply.user.username}">User</span>
+                                            <span class="comment-date" th:text="${reply.createdAt != null ? #temporals.format(reply.createdAt, 'dd/MM/yyyy HH:mm') : ''}">Date</span>
+                                            <button th:if="${reply.canDelete}" class="btn-delete-comment" th:data-comment-id="${reply.id}"
+                                                style="margin-left:auto; background:none; border:none; color:#dc2626; font-size:11px; cursor:pointer; opacity:0.6; transition:opacity 0.2s;"
+                                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'"
+                                                title="Xóa phản hồi">🗑 Xóa</button>
+                                        </div>
+                                        <p class="comment-text" th:text="${reply.content}">Reply</p>
+                                        <div class="comment-actions">
+                                            <button class="comment-like-pill btn-like-comment" 
+                                                th:data-comment-id="${reply.id}"
+                                                th:data-liked="${reply.isLikedByCurrentUser}"
+                                                th:classappend="${reply.isLikedByCurrentUser} ? 'liked' : ''">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                                </svg>
+                                                <span class="comment-like-count" th:text="${reply.likesCount}">0</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related posts -->
+        <section style="max-width:800px; margin:4rem auto 0 auto;">
+            <h3 class="text-2xl font-bold mb-6">Bài viết mới nhất</h3>
+            <div class="grid grid-3 gap-6">
+                <article class="post-card" th:each="related : ${relatedPosts}">
+                    <a th:href="@{/post/{slug}(slug=${related.slug})}" class="post-card-img" th:text="${related.category != null ? related.category.name : 'Blog'}">Cat</a>
+                    <div class="post-card-body">
+                        <div>
+                            <a th:href="@{/post/{slug}(slug=${related.slug})}">
+                                <h3 th:text="${related.title}" class="line-clamp-2" style="font-size:1.1rem; line-height:1.4;">Title</h3>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const csrfToken  = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            function getHeaders() {
+                const h = { 'Content-Type': 'application/json' };
+                if (csrfToken && csrfHeader) h[csrfHeader] = csrfToken;
+                return h;
+            }
+
+            /* ===== POST LIKE ===== */
+            const likeBtn   = document.getElementById("likeBtn");
+            const likeCount = document.getElementById("likeCount");
+            const likeError = document.getElementById("likeError");
+            const totalCommentsBar = document.getElementById("totalCommentsBar");
+
+            if (likeBtn) {
+                likeBtn.addEventListener("click", function() {
+                    fetch(`/api/posts/${this.dataset.postId}/like`, { method:'POST', headers: getHeaders() })
+                    .then(res => {
+                        if (res.status === 401 || res.status === 403) {
+                            likeError.textContent = "Vui lòng đăng nhập để yêu thích.";
+                            likeError.style.display = "block";
+                            setTimeout(() => window.location.href = '/login', 1500);
+                            throw new Error();
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        likeError.style.display = "none";
+                        likeCount.textContent = data.count;
+                        data.liked ? likeBtn.classList.add("liked") : likeBtn.classList.remove("liked");
+                    })
+                    .catch(err => console.error(err));
+                });
+            }
+
+            const bookmarkBtn = document.getElementById("bookmarkBtn");
+            if (bookmarkBtn) {
+                bookmarkBtn.addEventListener("click", function() {
+                    const postId = this.dataset.postId;
+                    fetch(`/api/posts/${postId}/bookmark`, {
+                        method: 'POST',
+                        headers: getHeaders()
+                    })
+                    .then(response => {
+                        if (response.status === 401) {
+                            window.location.href = '/login';
+                            return;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.bookmarked !== undefined) {
+                            bookmarkBtn.classList.toggle("bookmarked", data.bookmarked);
+                            bookmarkBtn.title = data.bookmarked ? "Bỏ lưu" : "Lưu bài viết";
+                        }
+                    })
+                    .catch(error => console.error("Error bookmarking:", error));
+                });
+            }
+
+            /* ===== SHARE ===== */
+            const shareBtn = document.getElementById("shareBtn");
+            if (shareBtn) {
+                shareBtn.addEventListener("click", () => {
+                    if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); }
+                    else { navigator.clipboard.writeText(window.location.href).then(() => { shareBtn.title = "Đã sao chép!"; setTimeout(() => shareBtn.title = "Chia sẻ", 2000); }); }
+                });
+            }
+
+            /* ===== COUNTER HELPERS ===== */
+            const totalCommentsTitle = document.getElementById("totalCommentsTitle");
+            function changeCount(delta) {
+                [totalCommentsTitle, totalCommentsBar].forEach(el => {
+                    if (el) el.textContent = Math.max(0, parseInt(el.textContent||"0") + delta);
+                });
+            }
+
+            /* ===== AVATAR COLOR ===== */
+            function avatarColor(username) {
+                const colors = ['#10b981','#6366f1','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899'];
+                let h = 0; for (let c of (username||"U")) h = c.charCodeAt(0)+((h<<5)-h);
+                return colors[Math.abs(h) % colors.length];
+            }
+
+            /* ===== BUILD REPLY HTML ===== */
+            function buildReplyEl(data) {
+                const color = avatarColor(data.username);
+                const el = document.createElement('div');
+                el.className = 'reply-item reply-row';
+                el.id = 'comment-' + data.id;
+                el.innerHTML = `
+                    <div class="reply-avatar" style="background-color:${color}">
+                        <span>${data.username.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div class="comment-content-area">
+                        <div class="comment-meta">
+                            <span class="comment-username">${data.username}</span>
+                            <span class="comment-date">${data.createdAt}</span>
+                            <button class="btn-delete-comment" data-comment-id="${data.id}" 
+                                style="margin-left:auto; background:none; border:none; color:#dc2626; font-size:11px; cursor:pointer; opacity:0.6; transition:opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'"
+                                title="Xóa phản hồi">🗑 Xóa</button>
+                        </div>
+                        <p class="comment-text"></p>
+                        <div class="comment-actions">
+                            <button class="comment-like-pill btn-like-comment" data-comment-id="${data.id}" data-liked="false">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                                <span class="comment-like-count">0</span>
+                            </button>
+                        </div>
+                    </div>`;
+                el.querySelector('.comment-text').textContent = data.content;
+                return el;
+            }
+
+            function buildCommentEl(data) {
+                const postId = document.getElementById("submitCommentBtn")?.dataset.postId;
+                const color  = avatarColor(data.username);
+                const el = document.createElement('div');
+                el.className = 'comment-thread';
+                el.id = 'thread-' + data.id;
+                el.innerHTML = `
+                    <div class="comment-row" id="comment-${data.id}">
+                        <div class="comment-avatar" style="background-color:${color}">
+                            <span>${data.username.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div class="comment-content-area">
+                            <div class="comment-meta">
+                                <span class="comment-username">${data.username}</span>
+                                <span class="comment-date">${data.createdAt}</span>
+                                <button class="btn-delete-comment" data-comment-id="${data.id}" 
+                                    style="margin-left:auto; background:none; border:none; color:#dc2626; font-size:12px; cursor:pointer; opacity:0.6; transition:opacity 0.2s;"
+                                    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'"
+                                    title="Xóa bình luận">🗑 Xóa</button>
+                            </div>
+                            <p class="comment-text"></p>
+                            <div class="comment-actions">
+                                <button class="comment-like-pill btn-like-comment" data-comment-id="${data.id}" data-liked="false">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                    <span class="comment-like-count">0</span>
+                                </button>
+                                <button class="btn-reply-link btn-reply" data-comment-id="${data.id}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 17 4 12 9 7"></polyline><line x1="20" y1="12" x2="4" y2="12"></line>
+                                    </svg>
+                                    Trả lời
+                                </button>
+                            </div>
+                            <div class="reply-input-area" style="display:none; margin-top:12px;">
+                                <div class="reply-input-wrapper">
+                                    <textarea class="reply-textarea" rows="2" placeholder="Viết phản hồi..."></textarea>
+                                    <div style="display:flex; align-items:center;">
+                                        <button class="btn-send-reply btn-submit-reply" data-post-id="${postId}" data-parent-id="${data.id}">Gửi</button>
+                                        <button class="btn-cancel-reply">Hủy</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="replies-container replies-list" id="replies-${data.id}" style="display:none"></div>
+                        </div>
+                    </div>`;
+                el.querySelector('.comment-text').textContent = data.content;
+                return el;
+            }
+
+            /* ===== POST NEW COMMENT ===== */
+            const submitCommentBtn = document.getElementById("submitCommentBtn");
+            const commentInput     = document.getElementById("commentInput");
+            const commentsList     = document.getElementById("commentsList");
+            const commentError     = document.getElementById("commentError");
+            const noCommentsMsg    = document.getElementById("noCommentsMsg");
+
+            if (submitCommentBtn) {
+                submitCommentBtn.addEventListener("click", function() {
+                    const content = commentInput.value.trim();
+                    if (!content) { commentError.textContent = "Vui lòng nhập nội dung!"; commentError.style.display = "block"; return; }
+                    this.disabled = true; this.textContent = "Đang gửi...";
+                    commentError.style.display = "none";
+
+                    fetch(`/api/posts/${this.dataset.postId}/comment`, {
+                        method:'POST', headers: getHeaders(), body: JSON.stringify({ content })
+                    })
+                    .then(res => { if (!res.ok) return res.json().then(e => { throw new Error(e.message); }); return res.json(); })
+                    .then(data => {
+                        if (noCommentsMsg) noCommentsMsg.style.display = "none";
+                        commentsList.appendChild(buildCommentEl(data));
+                        changeCount(1);
+                        commentInput.value = "";
+                    })
+                    .catch(err => { if (err.message) { commentError.textContent = err.message; commentError.style.display = "block"; } })
+                    .finally(() => { submitCommentBtn.disabled = false; submitCommentBtn.textContent = "Đăng bình luận"; });
+                });
+            }
+
+            /* ===== EVENT DELEGATION ===== */
+            if (commentsList) {
+                commentsList.addEventListener("click", function(e) {
+                    const replyBtn       = e.target.closest(".btn-reply");
+                    const cancelBtn      = e.target.closest(".btn-cancel-reply");
+                    const submitReplyBtn = e.target.closest(".btn-submit-reply");
+                    const deleteBtn      = e.target.closest(".btn-delete-comment");
+                    const likeComBtn     = e.target.closest(".btn-like-comment");
+
+                    /* REPLY TOGGLE */
+                    if (replyBtn) {
+                        const row  = replyBtn.closest(".comment-row");
+                        const area = row?.querySelector(".reply-input-area");
+                        if (area) {
+                            const isOpen = area.style.display !== "none";
+                            document.querySelectorAll(".reply-input-area").forEach(a => a.style.display = "none");
+                            if (!isOpen) { area.style.display = "block"; area.querySelector(".reply-textarea")?.focus(); }
+                        }
+                    }
+
+                    /* CANCEL */
+                    if (cancelBtn) {
+                        const area = cancelBtn.closest(".reply-input-area");
+                        if (area) { area.style.display = "none"; area.querySelector(".reply-textarea").value = ""; }
+                    }
+
+                    /* SUBMIT REPLY */
+                    if (submitReplyBtn) {
+                        const area     = submitReplyBtn.closest(".reply-input-area");
+                        const textarea = area.querySelector(".reply-textarea");
+                        const content  = textarea.value.trim();
+                        if (!content) { textarea.style.borderColor = "#ef4444"; return; }
+                        textarea.style.borderColor = "var(--primary,#10b981)";
+                        submitReplyBtn.disabled = true; submitReplyBtn.textContent = "Đang gửi...";
+
+                        fetch(`/api/posts/${submitReplyBtn.dataset.postId}/comment`, {
+                            method:'POST', headers: getHeaders(),
+                            body: JSON.stringify({ content, parentId: submitReplyBtn.dataset.parentId })
+                        })
+                        .then(res => { if (!res.ok) return res.json().then(e => { throw new Error(e.message); }); return res.json(); })
+                        .then(data => {
+                            const repliesContainer = document.getElementById("replies-" + submitReplyBtn.dataset.parentId);
+                            if (repliesContainer) { repliesContainer.style.display = "block"; repliesContainer.appendChild(buildReplyEl(data)); }
+                            area.style.display = "none"; textarea.value = "";
+                            changeCount(1);
+                        })
+                        .catch(err => { if (err.message) alert(err.message); })
+                        .finally(() => { submitReplyBtn.disabled = false; submitReplyBtn.textContent = "Gửi"; });
+                    }
+
+                    /* DELETE */
+                    if (deleteBtn) {
+                        if (!confirm("Bạn có muốn xóa bình luận này không?")) return;
+                        const cid = deleteBtn.dataset.commentId;
+                        fetch(`/api/comments/${cid}`, { method:'DELETE', headers: getHeaders() })
+                        .then(res => { if (!res.ok) throw new Error("Không có quyền xóa"); })
+                        .then(() => {
+                            const thread = document.getElementById("thread-" + cid);
+                            let countToRemove = 1;
+                            if (thread) {
+                                // Nếu là thread cha, đếm cả số lượng reply bên trong
+                                const replies = thread.querySelectorAll(".reply-item");
+                                countToRemove += replies.length;
+                                thread.remove();
+                            } else {
+                                const row = document.getElementById("comment-" + cid);
+                                row?.closest(".reply-row")?.remove() || row?.remove();
+                            }
+                            changeCount(-countToRemove);
+                        })
+                        .catch(err => alert(err.message));
+                    }
+
+                    /* LIKE COMMENT */
+                    if (likeComBtn) {
+                        const cid = likeComBtn.dataset.commentId;
+                        fetch(`/api/comments/${cid}/like`, { method:'POST', headers: getHeaders() })
+                        .then(res => { if (res.status === 401 || res.status === 403) { window.location.href='/login'; throw new Error(); } return res.json(); })
+                        .then(data => {
+                            const svg   = likeComBtn.querySelector("svg");
+                            const count = likeComBtn.querySelector(".comment-like-count");
+                            count.textContent = data.count;
+                            if (data.liked) {
+                                likeComBtn.classList.add('liked');
+                                svg?.setAttribute('fill', '#10b981');
+                                svg?.setAttribute('stroke', '#10b981');
+                            } else {
+                                likeComBtn.classList.remove('liked');
+                                svg?.setAttribute('fill', 'none');
+                                svg?.setAttribute('stroke', 'currentColor');
+                            }
+                        })
+                        .catch(err => console.error(err));
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

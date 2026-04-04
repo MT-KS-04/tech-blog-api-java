@@ -29,10 +29,6 @@ public class PlaceholderController {
         return "error/404";
     }
 
-    @GetMapping({ "/user/profile", "/user/profile/**" })
-    public String userProfile() {
-        return "error/404";
-    }
 
     @GetMapping({ "/search", "/search/**" })
     public String searchPlaceholder() {

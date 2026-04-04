@@ -62,4 +62,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             @Param("status") Post.Status status,
             Pageable pageable
     );
+
+    @Query("SELECT p FROM Post p JOIN PostLike pl ON p.id = pl.post.id WHERE pl.user.id = :userId AND p.status = 'PUBLISHED' ORDER BY pl.createdAt DESC")
+    List<Post> findLikedPostsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT p FROM Post p JOIN PostBookmark pb ON p.id = pb.post.id WHERE pb.user.id = :userId AND p.status = 'PUBLISHED' ORDER BY pb.createdAt DESC")
+    List<Post> findBookmarkedPostsByUserId(@Param("userId") Long userId);
 }

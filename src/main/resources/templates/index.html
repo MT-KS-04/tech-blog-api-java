@@ -22,7 +22,7 @@
                 <p class="text-lg text-muted mt-4" style="max-width:560px">In-depth articles, tutorials, and reviews
                     from the sharpest minds in tech. Read, learn, build.</p>
                 <div class="flex gap-3 mt-8" style="flex-wrap:wrap">
-                    <a href="#" class="btn btn-primary btn-lg">Browse Articles →</a>
+                    <a href="#latest" class="btn btn-primary btn-lg">Browse Articles →</a>
                     <a th:href="@{/register}" class="btn btn-outline btn-lg">Join the community</a>
                 </div>
             </div>
@@ -38,89 +38,69 @@
             </div>
         </section>
 
+        <!-- Featured Section -->
         <section class="container py-12">
             <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-bold">Featured</h2>
-                <a href="#" class="text-sm text-primary font-medium">View all →</a>
+                <a href="#latest" class="text-sm text-primary font-medium">View all →</a>
             </div>
-            <div class="grid grid-2 gap-6 mt-6">
-                <article class="post-card featured">
-                    <a href="#" class="post-card-img">AI & ML</a>
+
+            <!-- No featured posts -->
+            <div th:if="${#lists.isEmpty(featuredPosts)}" class="mt-6" style="text-align:center; padding: 40px 20px; color: var(--muted-fg);">
+                <p>Chưa có bài viết nào được duyệt. Hãy quay lại sau!</p>
+            </div>
+
+            <!-- Featured posts grid -->
+            <div class="grid grid-2 gap-6 mt-6" th:unless="${#lists.isEmpty(featuredPosts)}">
+                <article class="post-card featured" th:each="post : ${featuredPosts}">
+                    <a th:href="@{/post/{slug}(slug=${post.slug})}" class="post-card-img"
+                       th:style="${post.thumbnailUrl != null} ? 'background-image: url(' + ${post.thumbnailUrl} + '); background-size: cover; background-position: center;' : ''"
+                       th:text="${post.thumbnailUrl == null ? (post.category != null ? post.category.name : 'TechPulse') : ''}">
+                    </a>
                     <div class="post-card-body">
                         <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">AI & ML</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>The Rise of AI Agents: How Autonomous Systems Are Reshaping Software Development
-                                </h3>
+                            <div class="post-card-meta">
+                                <span class="badge badge-secondary" th:text="${post.category != null ? post.category.name : 'Chung'}">Category</span>
+                                <span class="text-xs text-muted" th:text="${post.viewCount + ' lượt xem'}">0 lượt xem</span>
+                            </div>
+                            <a th:href="@{/post/{slug}(slug=${post.slug})}">
+                                <h3 th:text="${post.title}">Tiêu đề bài viết</h3>
                             </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">AI agents are no longer science fiction.
-                                Discover how autonomous AI is transforming developer workflow.</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="post-card featured">
-                    <a href="#" class="post-card-img">Web Dev</a>
-                    <div class="post-card-body">
-                        <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">Web Dev</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Building Blazing-Fast Web Apps with React Server Components</h3>
-                            </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">React Server Components have matured. Learn
-                                to leverage them for faster load times.</p>
+                            <p class="text-sm text-muted mt-2 line-clamp-2" th:text="${post.summary}">Mô tả bài viết...</p>
                         </div>
                     </div>
                 </article>
             </div>
         </section>
 
-        <section class="container" style="padding-bottom:4rem">
+        <!-- Latest Articles Section -->
+        <section id="latest" class="container" style="padding-bottom:4rem">
             <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-bold">Latest Articles</h2>
                 <a href="#" class="text-sm text-primary font-medium">View all →</a>
             </div>
-            <div class="grid grid-3 gap-6 mt-6">
-                <article class="post-card">
-                    <a href="#" class="post-card-img">Cybersecurity</a>
+
+            <!-- No latest posts -->
+            <div th:if="${#lists.isEmpty(latestPosts)}" class="mt-6" style="text-align:center; padding: 40px 20px; color: var(--muted-fg);">
+                <p>Chưa có bài viết nào được duyệt.</p>
+            </div>
+
+            <div class="grid grid-3 gap-6 mt-6" th:unless="${#lists.isEmpty(latestPosts)}">
+                <article class="post-card" th:each="post : ${latestPosts}">
+                    <a th:href="@{/post/{slug}(slug=${post.slug})}" class="post-card-img"
+                       th:style="${post.thumbnailUrl != null} ? 'background-image: url(' + ${post.thumbnailUrl} + '); background-size: cover; background-position: center;' : ''"
+                       th:text="${post.thumbnailUrl == null ? (post.category != null ? post.category.name : 'TechPulse') : ''}">
+                    </a>
                     <div class="post-card-body">
                         <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">Cybersecurity</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Zero-Trust Architecture: A Practical Guide for Modern Teams</h3>
+                            <div class="post-card-meta">
+                                <span class="badge badge-secondary" th:text="${post.category != null ? post.category.name : 'Chung'}">Category</span>
+                                <span class="text-xs text-muted" th:text="${post.viewCount + ' lượt xem'}">0 lượt xem</span>
+                            </div>
+                            <a th:href="@{/post/{slug}(slug=${post.slug})}">
+                                <h3 th:text="${post.title}">Tiêu đề bài viết</h3>
                             </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">Zero-trust isn't just a buzzword. Here's a
-                                step-by-step guide to implementing it.</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="post-card">
-                    <a href="#" class="post-card-img">DevOps</a>
-                    <div class="post-card-body">
-                        <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">DevOps</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Kubernetes in 2026: What's New and What Matters</h3>
-                            </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">Kubernetes has evolved significantly.
-                                Explore new features and best practices.</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="post-card">
-                    <a href="#" class="post-card-img">Mobile</a>
-                    <div class="post-card-body">
-                        <div>
-                            <div class="post-card-meta"><span class="badge badge-secondary">Mobile</span><span
-                                    class="text-xs text-muted">8 min read</span></div>
-                            <a href="#">
-                                <h3>Flutter vs React Native in 2026: The Definitive Comparison</h3>
-                            </a>
-                            <p class="text-sm text-muted mt-2 line-clamp-2">We compare the two leading cross-platform
-                                frameworks across performance and DX.</p>
+                            <p class="text-sm text-muted mt-2 line-clamp-2" th:text="${post.summary}">Mô tả bài viết...</p>
                         </div>
                     </div>
                 </article>
