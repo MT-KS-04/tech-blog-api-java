@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8888:8888"
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${AWS_RDS_DB_ENDPOINT}:3306/tech_blog_db?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=${AWS_RDS_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${AWS_RDS_DB_PASSWORD}
+    networks:
+      - tech-blog-network
+
+networks:
+  tech-blog-network:
+    driver: bridge

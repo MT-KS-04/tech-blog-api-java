@@ -39,3 +39,7 @@ Frontend
 
 /uploads/*
 !/uploads/.gitignore
+
+# Environment variables
+.env
+.env.local
